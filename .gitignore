@@ -1,0 +1,5 @@
+.ipynb_checkpoints/
+prism/.idea/
+prism/__pycache__/
+prism/data/
+venv/
