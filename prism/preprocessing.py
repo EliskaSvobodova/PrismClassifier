@@ -6,7 +6,7 @@ import numpy as np
 
 
 def get_prep_data(filename: str, y_name: str) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
-    df = pd.read_csv(filename, index_col=0)
+    df = pd.read_csv(filename)
     df = prep_binning(df)
     X_train, X_test, y_train, y_test = train_test_split(df.drop(y_name, axis=1), df[y_name])
     return X_train, X_test, y_train, y_test
