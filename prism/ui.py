@@ -1,13 +1,14 @@
-from typing import List
+from typing import List, Optional
 
 from prettytable import PrettyTable
 
+from command_selection import CommandSelection, Command
 from dataset import Dataset
 from datasets_manager import DatasetsManager
 from rule import Rule
 
 
-def print_rules(rules: List[Rule]):
+def show_rules(rules: List[Rule]):
     print("Rules:")
     for r in rules:
         print(f"{r.query()}  -->  {r.cl}")
@@ -36,13 +37,13 @@ def select_dataset(manager: DatasetsManager):
     while not selected:
         selected = input_number(f"Index of the selected dataset (a number from 1 to {len(manager.datasets_list)}): ",
                                 1, len(manager.datasets_list))
-    return manager.datasets_list[int(selected) - 1]
+    return manager.datasets_list[selected - 1]
 
 
 def should_load_rules(dataset: Dataset):
     if dataset.rules_available:
         answer = input("This dataset has pre-computed rules, do you want to load them "
-                       "(otherwise the rules will be computed again from the dataset)? [yes/no]")
+                       "(otherwise the rules will be computed again from the dataset)? [yes/no] ")
         answer = answer.lower()
         while answer not in ["yes", "no"]:
             answer = input("Do you want to load the pre-computed rules? Please, type \"yes\" or \"no\": ")
@@ -50,6 +51,25 @@ def should_load_rules(dataset: Dataset):
         if answer == "yes":
             return True
     return False
+
+
+def select_command(header: str, command_sel: CommandSelection) -> Command:
+    horizontal_line()
+    print(header + ":")
+    for i, c in enumerate(command_sel.commands):
+        print(f"{i+1}) {c.name} = {c.description}")
+    choice = input_number(f"Select action (number from 1 to {len(command_sel.commands)}): ",
+                          1, len(command_sel.commands))
+    while not choice:
+        choice = input_number(f"Select action (number from 1 to {len(command_sel.commands)}): ",
+                              1, len(command_sel.commands))
+    return command_sel.commands[choice - 1]
+
+
+def show_rules_evaluation(accuracy: float):
+    horizontal_line()
+    print("Rules evaluation:")
+    print(f"Accuracy: {accuracy}")
 
 
 def loading_rules():
@@ -60,7 +80,7 @@ def computing_rules():
     print("Computing rules from the dataset...")
 
 
-def input_number(prompt, min_val, max_val):
+def input_number(prompt, min_val, max_val) -> Optional[int]:
     selected = input(prompt)
     try:
         selected = int(selected)
