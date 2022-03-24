@@ -29,7 +29,7 @@ def init_rules_analysis_com_sel():
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.WARNING)
+    logging.basicConfig(level=logging.CRITICAL)
 
     welcome_page()
     datasets_manager = init_datasets_manager()

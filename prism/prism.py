@@ -5,6 +5,7 @@ from typing import List
 import pandas as pd
 
 from rule import Rule
+from ui import ProgressBar
 
 
 class Prism:
@@ -21,6 +22,8 @@ class Prism:
         for i, cl in enumerate(self.classes):
             cl_inst = X_y[y == cl]
             inst = X_y
+            p_bar = ProgressBar(len(cl_inst), f"Class: {cl} ({i+1}/{len(self.classes)})")
+            total_cl_inst = len(cl_inst)
             while len(cl_inst) > 0:
                 rule = Rule(cl)
                 while len(rule.available_attributes(X_y)) > 0 and not rule.is_perfect(X_y):
@@ -29,6 +32,7 @@ class Prism:
                 cl_inst = rule.not_matched_inst(cl_inst)
                 inst = rule.not_matched_inst(inst)
                 self.rules.append(rule)
+                p_bar.update(total_cl_inst - len(cl_inst))
                 logging.warning(f"Class: {cl} ({i+1}/{len(self.classes)}), {len(cl_inst)} remaining")
             logging.info(f"Class {cl} completed\n")
 
