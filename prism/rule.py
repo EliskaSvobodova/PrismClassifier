@@ -54,7 +54,12 @@ class Rule:
         self.operands = sorted_rules[0][0].operands
 
     def query(self):
-        return ' & '.join(f"{att} == {val}" for att, val in self.operands.items())
+        def equal(att, val):
+            if type(val) is str:
+                return f"`{att}` == '{val}'"
+            else:
+                return f"`{att}` == {val}"
+        return ' & '.join(equal(att, val) for att, val in self.operands.items())
 
     def toJson(self):
         return '{"cl":' + str(self.cl) + ', "operands":{' + ','.join([f'"{att}": {val}' for att, val in self.operands.items()]) + '}}'
