@@ -2,6 +2,7 @@ from typing import Dict, List
 
 import pandas as pd
 
+from RuleEval import RuleEval
 from command_selection import Command
 from prism import Prism
 from rule import Rule
@@ -58,11 +59,9 @@ class EvaluateRulesCommand(Command):
             X_match = rule.match(self.X_test)
             match = X_match.join(self.y_test, how='inner')
             correct_match = match[match[self.y_test.name] == rule.cl]
-            # coverage
             coverage = len(correct_match) / y_val_counts[rule.cl] if y_val_counts[rule.cl] != 0 else 0
-            # precision
             precision = (len(correct_match) / len(match)) if len(match) != 0 else 0
-            results.append([rule, precision, coverage])
+            results.append(RuleEval(precision, coverage, rule))
         show_rules_eval(results)
         return True
 

@@ -3,6 +3,7 @@ from typing import List, Optional, Dict, Tuple
 
 from prettytable import PrettyTable
 
+from RuleEval import RuleEval
 from command_selection import CommandSelection, Command
 from dataset import Dataset
 from datasets_manager import DatasetsManager
@@ -16,11 +17,11 @@ def show_rules(rules: List[Rule]):
     print()
 
 
-def show_rules_eval(rules_eval):
+def show_rules_eval(rules_eval: List[RuleEval]):
     print(f" Precision | Coverage | Rule")
     print(f"-----------+----------+-----")
-    for rule, precision, coverage in rules_eval:
-        print(f"    {precision:3.2f}   |   {coverage:3.2f}   | {rule}")
+    for rule_eval in rules_eval:
+        print(f"    {rule_eval.precision:3.2f}   |   {rule_eval.coverage:3.2f}   | {rule_eval.rule}")
 
 
 def welcome_page():
