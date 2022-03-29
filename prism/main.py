@@ -4,7 +4,7 @@ from command_selection import CommandSelection
 from dataset import Dataset
 from datasets_manager import DatasetsManager
 from prism import Prism
-from rules_analysis_cs import ShowRulesCommand, EvaluateCommand, ExitCommand
+from rules_analysis_cs import ShowRulesCommand, EvaluateModelCommand, ExitCommand, EvaluateRulesCommand
 from ui import welcome_page, select_dataset, should_load_rules, loading_rules, computing_rules, select_command
 
 
@@ -22,8 +22,10 @@ def init_rules_analysis_com_sel():
     cs = CommandSelection()
     cs.add_command(ShowRulesCommand({'rules': prism.rules},
                                     "show_rules", "show a list of obtained rules"))
-    cs.add_command(EvaluateCommand({'X_test': dataset.X_test, 'y_test': dataset.y_test, 'prism': prism},
-                                   "evaluate_rules", "run classification on the test dataset and show result metrics"))
+    cs.add_command(EvaluateModelCommand({'X_test': dataset.X_test, 'y_test': dataset.y_test, 'prism': prism},
+                                        "evaluate_model", "run classification on the test dataset and show result metrics"))
+    cs.add_command(EvaluateRulesCommand({'X_test': dataset.X_test, 'y_test': dataset.y_test, 'prism': prism},
+                                        "evaluate_rules", "apply each of the rules to the test dataset and get their metrics"))
     cs.add_command(ExitCommand("exit", "exit the rules analysis"))
     return cs
 

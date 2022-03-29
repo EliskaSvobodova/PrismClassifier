@@ -1,5 +1,5 @@
 import sys
-from typing import List, Optional
+from typing import List, Optional, Dict, Tuple
 
 from prettytable import PrettyTable
 
@@ -14,6 +14,13 @@ def show_rules(rules: List[Rule]):
     for r in rules:
         print(f"{r.query()}  -->  {r.cl}")
     print()
+
+
+def show_rules_eval(rules_eval):
+    print(f" Precision | Coverage | Rule")
+    print(f"-----------+----------+-----")
+    for rule, precision, coverage in rules_eval:
+        print(f"    {precision:3.2f}   |   {coverage:3.2f}   | {rule}")
 
 
 def welcome_page():
@@ -67,7 +74,7 @@ def select_command(header: str, command_sel: CommandSelection) -> Command:
     return command_sel.commands[choice - 1]
 
 
-def show_rules_evaluation(accuracy: float):
+def show_model_evaluation(accuracy: float):
     horizontal_line()
     print("Rules evaluation:")
     print(f"Accuracy: {accuracy}")

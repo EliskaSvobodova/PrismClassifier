@@ -61,8 +61,5 @@ class Prism:
         with open(filename, "r") as f:
             lines = json.loads(f.readline())["rules"]
             for line in lines:
-                cl = line["cl"]
-                op = line["operands"]
-                r = Rule(line["cl"], line["operands"])
                 self.rules.append(Rule(line["cl"], line["operands"]))
         self.classes = set(r.cl for r in self.rules)

@@ -1,4 +1,3 @@
-import json
 import logging
 import random
 from typing import Dict
@@ -62,7 +61,12 @@ class Rule:
         return ' & '.join(equal(att, val) for att, val in self.operands.items())
 
     def toJson(self):
-        return '{"cl":' + str(self.cl) + ', "operands":{' + ','.join([f'"{att}": {val}' for att, val in self.operands.items()]) + '}}'
+        def encode(x):
+            if type(x) is str:
+                return f'"{x}"'
+            else:
+                return str(x)
+        return '{"cl":' + encode(self.cl) + ', "operands":{' + ','.join([f'"{att}": {encode(val)}' for att, val in self.operands.items()]) + '}}'
 
     def __generate_new_rules(self, X_y):
         new_rules = []
