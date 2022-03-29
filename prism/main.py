@@ -1,11 +1,11 @@
 import logging
 
-from command_selection import CommandSelection
-from dataset import Dataset
-from datasets_manager import DatasetsManager
+from command_abs import CommandSelection
+from datasets.dataset import Dataset
+from datasets.datasets_manager import DatasetsManager
 from prism import Prism
-from rules_analysis_cs import ShowRulesCommand, EvaluateModelCommand, ExitCommand, EvaluateRulesCommand
-from ui import welcome_page, select_dataset, should_load_rules, loading_rules, computing_rules, select_command
+from commands import ShowRulesCommand, EvaluateModelCommand, ExitCommand, EvaluateRulesCommand
+from ui.ui import welcome_page, select_dataset, should_load_rules, loading_rules, computing_rules, select_command
 
 
 def init_datasets_manager():

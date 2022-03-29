@@ -2,11 +2,11 @@ from typing import Dict, List
 
 import pandas as pd
 
-from RuleEval import RuleEval
-from command_selection import Command
+from command_abs import Command
 from prism import Prism
-from rule import Rule
-from ui import show_rules, show_model_evaluation, show_rules_eval
+from rules.RuleEval import RuleEval
+from rules.rule import Rule
+from ui.ui import show_rules, show_model_evaluation, show_rules_eval
 
 
 class ShowRulesCommand(Command):

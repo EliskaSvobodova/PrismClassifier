@@ -1,4 +1,4 @@
-from rule import Rule
+from rules.rule import Rule
 
 
 class RuleEval:

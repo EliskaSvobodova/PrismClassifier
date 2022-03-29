@@ -4,8 +4,8 @@ from typing import List
 
 import pandas as pd
 
-from rule import Rule
-from ui import ProgressBar
+from rules.rule import Rule
+from ui.ui import ProgressBar
 
 
 class Prism:

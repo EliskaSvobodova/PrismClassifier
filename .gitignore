@@ -3,3 +3,4 @@ prism/.idea/
 prism/__pycache__/
 prism/data/
 venv/
+**/__pycache__/

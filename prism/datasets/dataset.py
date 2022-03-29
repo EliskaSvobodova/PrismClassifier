@@ -1,6 +1,6 @@
 import os.path
 
-from preprocessing import get_prep_data
+from datasets.preprocessing import get_prep_data
 
 
 class Dataset:

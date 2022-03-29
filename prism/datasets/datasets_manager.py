@@ -1,6 +1,6 @@
 from typing import List
 
-from dataset import Dataset
+from datasets.dataset import Dataset
 
 
 class DatasetsManager:

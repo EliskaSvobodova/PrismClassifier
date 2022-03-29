@@ -1,13 +1,12 @@
-import sys
-from typing import List, Optional, Dict, Tuple
+from typing import List, Optional
 
 from prettytable import PrettyTable
 
-from RuleEval import RuleEval
-from command_selection import CommandSelection, Command
-from dataset import Dataset
-from datasets_manager import DatasetsManager
-from rule import Rule
+from rules.RuleEval import RuleEval
+from command_abs import CommandSelection, Command
+from datasets.dataset import Dataset
+from datasets.datasets_manager import DatasetsManager
+from rules.rule import Rule
 
 
 def show_rules(rules: List[Rule]):
@@ -18,10 +17,10 @@ def show_rules(rules: List[Rule]):
 
 
 def show_rules_eval(rules_eval: List[RuleEval]):
-    print(f" Precision | Coverage | Rule")
-    print(f"-----------+----------+-----")
-    for rule_eval in rules_eval:
-        print(f"    {rule_eval.precision:3.2f}   |   {rule_eval.coverage:3.2f}   | {rule_eval.rule}")
+    print(f" Coverage | Precision | Rule")
+    print(f"----------+-----------+-----")
+    for rule_eval in sorted(rules_eval, key=lambda r: (r.coverage, r.precision), reverse=True):
+        print(f"   {rule_eval.coverage:3.2f}   |    {rule_eval.precision:3.2f}   | {rule_eval.rule}")
 
 
 def welcome_page():

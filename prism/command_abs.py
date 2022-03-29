@@ -1,5 +1,5 @@
-from abc import ABC, abstractmethod
-from typing import Dict, List
+from abc import abstractmethod, ABC
+from typing import List
 
 
 class Command(ABC):
