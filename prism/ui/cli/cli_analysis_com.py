@@ -2,7 +2,7 @@ from typing import List
 
 import pandas as pd
 
-from commands.command_abs import Command
+from command_abs import Command
 from prism import Prism
 from rules.rule import Rule
 
@@ -12,8 +12,16 @@ class ShowRulesCliCom(Command):
     Show a list of all rules
     """
 
-    def __init__(self, rules: List[Rule], name, description):
-        super().__init__(name, description)
+    @property
+    def name(self):
+        return "show_rules"
+
+    @property
+    def description(self):
+        return "show a list of obtained rules"
+
+    def __init__(self, rules: List[Rule]):
+        super().__init__()
         self.rules: List[Rule] = rules
 
     def run(self):
@@ -29,8 +37,16 @@ class EvaluateModelCliCom(Command):
     Make a classification on test dataset and show the accuracy
     """
 
-    def __init__(self, prism: Prism, X_test: pd.DataFrame, y_test: pd.Series, name, description):
-        super().__init__(name, description)
+    @property
+    def name(self):
+        return "evaluate model"
+
+    @property
+    def description(self):
+        return "run classification on the test dataset and show result metrics"
+
+    def __init__(self, prism: Prism, X_test: pd.DataFrame, y_test: pd.Series):
+        super().__init__()
         self.X_test: pd.DataFrame = X_test
         self.y_test: pd.Series = y_test
         self.prism: Prism = prism
@@ -47,8 +63,16 @@ class EvaluateRulesCliCom(Command):
     Show list of rules with their coverages and accuracies on test dataset (apply each rule on the test dataset)
     """
 
-    def __init__(self, prism: Prism, X_test: pd.DataFrame, y_test: pd.Series, name, description):
-        super().__init__(name, description)
+    @property
+    def name(self):
+        return "evaluate rules"
+
+    @property
+    def description(self):
+        return "apply each of the rules to the test dataset and get their metrics"
+
+    def __init__(self, prism: Prism, X_test: pd.DataFrame, y_test: pd.Series):
+        super().__init__()
         self.X_test: pd.DataFrame = X_test
         self.y_test: pd.Series = y_test
         self.prism: Prism = prism

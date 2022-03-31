@@ -1,7 +1,7 @@
-from abc import ABC, abstractmethod
-from typing import List, Optional
+from abc import abstractmethod
+from typing import Optional
 
-from commands.command_abs import CommandSelection, Command
+from command_abs import CommandSelection, Command
 from datasets.dataset import Dataset
 from datasets.datasets_manager import DatasetsManager
 from prism import Prism, FitProgressSubscriber

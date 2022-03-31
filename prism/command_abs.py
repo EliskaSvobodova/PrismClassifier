@@ -3,9 +3,15 @@ from typing import List
 
 
 class Command(ABC):
-    def __init__(self, name, description):
-        self.name = name
-        self.description = description
+    @property
+    @abstractmethod
+    def name(self):
+        pass
+
+    @property
+    @abstractmethod
+    def description(self):
+        pass
 
     @abstractmethod
     def run(self) -> bool:
@@ -24,5 +30,13 @@ class CommandSelection:
 
 
 class ExitCommand(Command):
+    @property
+    def name(self):
+        return "exit"
+
+    @property
+    def description(self):
+        return "exit current menu and return to the previous one / exit the application"
+
     def run(self):
         return False

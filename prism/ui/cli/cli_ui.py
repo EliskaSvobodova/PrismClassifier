@@ -2,7 +2,7 @@ from typing import Optional
 
 from prettytable import PrettyTable
 
-from commands.command_abs import CommandSelection, Command, ExitCommand
+from command_abs import CommandSelection, Command, ExitCommand
 from datasets.dataset import Dataset
 from datasets.datasets_manager import DatasetsManager
 from prism import Prism
@@ -67,13 +67,10 @@ class CliUi(UserInterface):
 
     def __init_rules_analysis_com_sel(self, prism, dataset):
         cs = CommandSelection()
-        cs.add_command(ShowRulesCliCom(prism.rules,
-                                       "show_rules", "show a list of obtained rules"))
-        cs.add_command(EvaluateModelCliCom(prism, dataset.X_test, dataset.y_test,
-                                            "evaluate_model", "run classification on the test dataset and show result metrics"))
-        cs.add_command(EvaluateRulesCliCom(prism, dataset.X_test, dataset.y_test,
-                                            "evaluate_rules", "apply each of the rules to the test dataset and get their metrics"))
-        cs.add_command(ExitCommand("exit", "exit the rules analysis"))
+        cs.add_command(ShowRulesCliCom(prism.rules))
+        cs.add_command(EvaluateModelCliCom(prism, dataset.X_test, dataset.y_test))
+        cs.add_command(EvaluateRulesCliCom(prism, dataset.X_test, dataset.y_test))
+        cs.add_command(ExitCommand())
         return cs
 
     def __select_command(self, header: str, command_sel: CommandSelection) -> Command:

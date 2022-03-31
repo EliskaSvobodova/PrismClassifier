@@ -1,21 +1,29 @@
 from abc import ABC
 
-from commands.command_abs import Command
+from command_abs import Command
 from datasets.datasets_manager import DatasetsManager
 from prism import Prism
 from ui.ui import UserInterface
 
 
 class WelcomePageCommand(Command, ABC):
-    def __init__(self, ui: UserInterface, datasets_manager: DatasetsManager, name, description):
-        super().__init__(name, description)
+    def __init__(self, ui: UserInterface, datasets_manager: DatasetsManager):
+        super().__init__()
         self.ui = ui
         self.d_manager = datasets_manager
 
 
 class SelectDatasetCommand(WelcomePageCommand):
-    def __init__(self, prism: Prism, ui: UserInterface, datasets_manager: DatasetsManager, name, description):
-        super().__init__(ui, datasets_manager, name, description)
+    @property
+    def name(self):
+        return "select dataset"
+
+    @property
+    def description(self):
+        return "select a dataset from the list and perform analysis of prism on it"
+
+    def __init__(self, prism: Prism, ui: UserInterface, datasets_manager: DatasetsManager):
+        super().__init__(ui, datasets_manager)
         self.prism: Prism = prism
 
     def run(self) -> bool:
@@ -33,10 +41,26 @@ class SelectDatasetCommand(WelcomePageCommand):
 
 
 class EvaluateCommand(WelcomePageCommand):
+    @property
+    def name(self):
+        return "evaluate"
+
+    @property
+    def description(self):
+        return "run classification on all test parts of the datasets and show result metrics"
+
     def run(self) -> bool:
         pass
 
 
 class UploadDatasetCommand(WelcomePageCommand):
+    @property
+    def name(self):
+        return "upload dataset"
+
+    @property
+    def description(self):
+        return "upload new dataset"
+
     def run(self) -> bool:
         pass
