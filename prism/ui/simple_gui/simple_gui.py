@@ -42,7 +42,18 @@ class SimpleGui(UserInterface):
                 return manager.datasets[event[2][0]]
 
     def should_load_rules(self) -> bool:
-        pass
+        layout = [[sg.Text(self.SHOULD_LOAD_DATASET)], [sg.Button("Yes", key="-YES-"), sg.Button("No", key="-NO-")]]
+        pop_window = sg.Window(title="Load data", layout=layout, margins=(100, 50))
+        while True:
+            event, values = pop_window.read()
+            if event == sg.WIN_CLOSED:
+                sys.exit()
+            if event == "-YES-":
+                pop_window.close()
+                return True
+            if event == "-NO-":
+                pop_window.close()
+                return False
 
     def analyse_dataset(self, prism: Prism, dataset: Dataset):
         pass

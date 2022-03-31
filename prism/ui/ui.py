@@ -10,11 +10,9 @@ from prism import Prism, FitProgressSubscriber
 class UserInterface(FitProgressSubscriber):
     TITLE = "PRISM"
     SUBTITLE = "rule-based classifier"
-    GUIDE = "How to use:\n" \
-            "1) select dataset to work on\n" \
-            "2) extract new rules / load rules\n" \
-            "3) analyse rules"
     SELECT_DATASET_TITLE = "Select a dataset you want to work with:"
+    SHOULD_LOAD_DATASET = "This dataset has pre-computed rules, do you want to load them?\n" \
+                          "(otherwise the rules will be computed again from the dataset)"
 
     @abstractmethod
     def welcome_page(self, command_selection: CommandSelection) -> Command:

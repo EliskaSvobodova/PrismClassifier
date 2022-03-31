@@ -19,7 +19,6 @@ class CliUi(UserInterface):
         print(f"\n+{'-' * (len(self.TITLE) + 2)}+")
         print(f"| {self.TITLE} |")
         print(f"+{'-' * (len(self.TITLE) + 2)}+   ... {self.SUBTITLE}")
-        # print(self.GUIDE)
         return self.__select_command("Main menu", command_selection)
 
     def select_dataset(self, manager: DatasetsManager) -> Dataset:
@@ -39,8 +38,7 @@ class CliUi(UserInterface):
         return manager.datasets_list[selected - 1]
 
     def should_load_rules(self) -> bool:
-        answer = input("This dataset has pre-computed rules, do you want to load them "
-                       "(otherwise the rules will be computed again from the dataset)? [yes/no] ")
+        answer = input(self.SHOULD_LOAD_DATASET + "\n[yes/no] : ")
         answer = answer.lower()
         while answer not in ["yes", "no"]:
             answer = input("Do you want to load the pre-computed rules? Please, type \"yes\" or \"no\": ")
