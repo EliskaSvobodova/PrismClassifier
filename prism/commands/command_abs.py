@@ -21,3 +21,8 @@ class CommandSelection:
 
     def add_command(self, command: Command):
         self.commands.append(command)
+
+
+class ExitCommand(Command):
+    def run(self):
+        return False

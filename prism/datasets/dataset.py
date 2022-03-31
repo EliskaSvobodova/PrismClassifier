@@ -1,6 +1,9 @@
+import json
 import os.path
+from typing import List
 
 from datasets.preprocessing import get_prep_data
+from rules.rule import Rule
 
 
 class Dataset:
@@ -24,3 +27,15 @@ class Dataset:
             return True
         else:
             return False
+
+    def save_rules(self, rules: List[Rule]):
+        with open(self.rules_filename, "w") as f:
+            f.write("{\"rules\": [" + ','.join([r.toJson() for r in rules]) + "]}")
+
+    def load_rules(self) -> List[Rule]:
+        rules = []
+        with open(self.rules_filename, "r") as f:
+            lines = json.loads(f.readline())["rules"]
+            for line in lines:
+                rules.append(Rule(line["cl"], line["operands"]))
+        return rules

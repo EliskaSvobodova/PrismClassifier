@@ -1,64 +1,42 @@
+from abc import ABC, abstractmethod
 from typing import List, Optional
 
-from prettytable import PrettyTable
-
-from rules.RuleEval import RuleEval
-from command_abs import CommandSelection, Command
+from commands.command_abs import CommandSelection, Command
 from datasets.dataset import Dataset
 from datasets.datasets_manager import DatasetsManager
-from rules.rule import Rule
+from prism import Prism, FitProgressSubscriber
 
 
-def show_rules(rules: List[Rule]):
-    print("Rules:")
-    for r in rules:
-        print(f"{r.query()}  -->  {r.cl}")
-    print()
+class UserInterface(FitProgressSubscriber):
+    TITLE = "PRISM"
+    SUBTITLE = "rule-based classifier"
+    GUIDE = "How to use:\n" \
+            "1) select dataset to work on\n" \
+            "2) extract new rules / load rules\n" \
+            "3) analyse rules"
+
+    @abstractmethod
+    def welcome_page(self, command_selection: CommandSelection) -> Command:
+        pass
+
+    @abstractmethod
+    def select_dataset(self, manager: DatasetsManager) -> Dataset:
+        pass
+
+    @abstractmethod
+    def should_load_rules(self) -> bool:
+        pass
+
+    @abstractmethod
+    def analyse_dataset(self, prism: Prism, dataset: Dataset):
+        pass
+
+    @abstractmethod
+    def fit_rules(self):
+        pass
 
 
-def show_rules_eval(rules_eval: List[RuleEval]):
-    print(f" Coverage | Precision | Rule")
-    print(f"----------+-----------+-----")
-    for rule_eval in sorted(rules_eval, key=lambda r: (r.coverage, r.precision), reverse=True):
-        print(f"   {rule_eval.coverage:3.2f}   |    {rule_eval.precision:3.2f}   | {rule_eval.rule}")
 
-
-def welcome_page():
-    print("+-------+\n| PRISM |\n+-------+   ... rule-based classifier")
-    print("How to use:")
-    print_ind("1) select dataset to work on")
-    print_ind("2) extract new rules / load rules")
-    print_ind("3) analyse rules")
-    horizontal_line()
-
-
-def select_dataset(manager: DatasetsManager):
-    table = PrettyTable()
-    table.field_names = ["index", "name", "# instances", "# attributes", "# targets", "rules available"]
-
-    for i, d in enumerate(manager.datasets_list):
-        table.add_row([i + 1, d.name, d.num_inst, d.num_att, d.num_targ, d.rules_available])
-
-    print("Available datasets:")
-    print(table)
-    selected = input_number("Index of the selected dataset: ", 1, len(manager.datasets_list))
-    while not selected:
-        selected = input_number(f"Index of the selected dataset (a number from 1 to {len(manager.datasets_list)}): ",
-                                1, len(manager.datasets_list))
-    return manager.datasets_list[selected - 1]
-
-
-def should_load_rules(dataset: Dataset):
-    if dataset.rules_available:
-        answer = input("This dataset has pre-computed rules, do you want to load them "
-                       "(otherwise the rules will be computed again from the dataset)? [yes/no] ")
-        answer = answer.lower()
-        while answer not in ["yes", "no"]:
-            answer = input("Do you want to load the pre-computed rules? Please, type \"yes\" or \"no\": ")
-            answer = answer.lower()
-        if answer == "yes":
-            return True
-    return False
 
 
 def select_command(header: str, command_sel: CommandSelection) -> Command:
@@ -74,20 +52,6 @@ def select_command(header: str, command_sel: CommandSelection) -> Command:
     return command_sel.commands[choice - 1]
 
 
-def show_model_evaluation(accuracy: float):
-    horizontal_line()
-    print("Rules evaluation:")
-    print(f"Accuracy: {accuracy}")
-
-
-def loading_rules():
-    print("Loading rules...")
-
-
-def computing_rules():
-    print("Computing rules from the dataset...")
-
-
 def input_number(prompt, min_val, max_val) -> Optional[int]:
     selected = input(prompt)
     try:
@@ -97,45 +61,6 @@ def input_number(prompt, min_val, max_val) -> Optional[int]:
     if selected not in range(min_val, max_val + 1):
         return None
     return selected
-
-
-class ProgressBar:
-    """
-    Call in a loop to create terminal progress bar
-    source: https://stackoverflow.com/questions/3173320/text-progress-bar-in-terminal-with-block-characters (modified)
-
-    iteration   - Required  : current iteration (Int)
-    total       - Required  : total iterations (Int)
-    prefix      - Optional  : prefix string (Str)
-    suffix      - Optional  : suffix string (Str)
-    decimals    - Optional  : positive number of decimals in percent complete (Int)
-    length      - Optional  : character length of bar (Int)
-    fill        - Optional  : bar fill character (Str)
-    printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
-    """
-
-    def __init__(self, total, prefix='', suffix='', decimals=1, length=100, fill='█', printEnd="\r"):
-        self.iteration = 0
-        self.total = total
-        self.prefix = prefix
-        self.suffix = suffix
-        self.decimals = decimals
-        self.length = length
-        self.fill = fill
-        self.printEnd = printEnd
-
-    def update(self, iteration=None):
-        if iteration is None:
-            self.iteration += 1
-        else:
-            self.iteration = iteration
-        percent = ("{0:." + str(self.decimals) + "f}").format(100 * (self.iteration / float(self.total)))
-        filledLength = int(self.length * self.iteration // self.total)
-        bar = self.fill * filledLength + '-' * (self.length - filledLength)
-        print(f'\r{self.prefix} |{bar}| {percent}% {self.suffix}', end=self.printEnd, flush=True)
-        # Print New Line on Complete
-        if self.iteration == self.total:
-            print()
 
 
 def horizontal_line():

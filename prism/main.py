@@ -1,11 +1,9 @@
 import logging
 
-from command_abs import CommandSelection
+from application import Application
 from datasets.dataset import Dataset
 from datasets.datasets_manager import DatasetsManager
-from prism import Prism
-from commands import ShowRulesCommand, EvaluateModelCommand, ExitCommand, EvaluateRulesCommand
-from ui.ui import welcome_page, select_dataset, should_load_rules, loading_rules, computing_rules, select_command
+from ui.cli.cli_ui import CliUi
 
 
 def init_datasets_manager():
@@ -18,36 +16,10 @@ def init_datasets_manager():
     return dm
 
 
-def init_rules_analysis_com_sel():
-    cs = CommandSelection()
-    cs.add_command(ShowRulesCommand({'rules': prism.rules},
-                                    "show_rules", "show a list of obtained rules"))
-    cs.add_command(EvaluateModelCommand({'X_test': dataset.X_test, 'y_test': dataset.y_test, 'prism': prism},
-                                        "evaluate_model", "run classification on the test dataset and show result metrics"))
-    cs.add_command(EvaluateRulesCommand({'X_test': dataset.X_test, 'y_test': dataset.y_test, 'prism': prism},
-                                        "evaluate_rules", "apply each of the rules to the test dataset and get their metrics"))
-    cs.add_command(ExitCommand("exit", "exit the rules analysis"))
-    return cs
-
-
 if __name__ == '__main__':
     logging.basicConfig(level=logging.CRITICAL)
 
-    welcome_page()
+    ui = CliUi()
     datasets_manager = init_datasets_manager()
-    dataset = select_dataset(datasets_manager)
-
-    prism = Prism()
-    if should_load_rules(dataset):
-        loading_rules()
-        prism.load_rules(dataset.rules_filename)
-    else:
-        computing_rules()
-        prism.fit(dataset.X_train, dataset.y_train)
-        prism.save_rules(dataset.rules_filename)
-
-    rules_analysis_cs = init_rules_analysis_com_sel()
-
-    command = select_command("Rules analysis", rules_analysis_cs)
-    while command.run():
-        command = select_command("Rules analysis", rules_analysis_cs)
+    app = Application(ui, datasets_manager)
+    app.run()
