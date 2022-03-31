@@ -14,6 +14,7 @@ class UserInterface(FitProgressSubscriber):
             "1) select dataset to work on\n" \
             "2) extract new rules / load rules\n" \
             "3) analyse rules"
+    SELECT_DATASET_TITLE = "Select a dataset you want to work with:"
 
     @abstractmethod
     def welcome_page(self, command_selection: CommandSelection) -> Command:

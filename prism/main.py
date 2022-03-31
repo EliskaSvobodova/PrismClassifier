@@ -4,6 +4,7 @@ from application import Application
 from datasets.dataset import Dataset
 from datasets.datasets_manager import DatasetsManager
 from ui.cli.cli_ui import CliUi
+from ui.simple_gui.simple_gui import SimpleGui
 
 
 def init_datasets_manager():
@@ -19,7 +20,8 @@ def init_datasets_manager():
 if __name__ == '__main__':
     logging.basicConfig(level=logging.CRITICAL)
 
-    ui = CliUi()
+    # ui = CliUi()
+    ui = SimpleGui()
     datasets_manager = init_datasets_manager()
     app = Application(ui, datasets_manager)
     app.run()

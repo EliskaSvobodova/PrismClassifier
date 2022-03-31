@@ -27,9 +27,9 @@ class CliUi(UserInterface):
         table.field_names = ["index", "name", "# instances", "# attributes", "# targets", "rules available"]
 
         for i, d in enumerate(manager.datasets_list):
-            table.add_row([i + 1, d.name, d.num_inst, d.num_att, d.num_targ, d.rules_available])
+            table.add_row([i+1, d.name, d.num_inst, d.num_att, d.num_targ, d.rules_available])
 
-        print("Available datasets:")
+        print(self.SELECT_DATASET_TITLE)
         print(table)
         selected = self.__input_number("Index of the selected dataset: ", 1, len(manager.datasets_list))
         while not selected:
