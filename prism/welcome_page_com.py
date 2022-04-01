@@ -40,19 +40,6 @@ class SelectDatasetCommand(WelcomePageCommand):
         return True
 
 
-class EvaluateCommand(WelcomePageCommand):
-    @property
-    def name(self):
-        return "evaluate"
-
-    @property
-    def description(self):
-        return "run classification on all test parts of the datasets and show result metrics"
-
-    def run(self) -> bool:
-        pass
-
-
 class UploadDatasetCommand(WelcomePageCommand):
     @property
     def name(self):
