@@ -1,13 +1,13 @@
 import sys
-from multiprocessing import Process
+from typing import List
 
 import PySimpleGUI as sg
-import pandas as pd
 
 from command_abs import CommandSelection, Command
 from datasets.dataset import Dataset
 from datasets.datasets_manager import DatasetsManager
 from prism import Prism
+from rules.rule_eval import RuleEval
 from ui.ui import UserInterface
 
 
@@ -63,15 +63,18 @@ class SimpleGui(UserInterface):
                 return False
 
     def analyse_dataset(self, prism: Prism, dataset: Dataset):
-        # TODO: evaluate rules
-        rule_list = [str(r) for r in prism.rules]
         self.__switch_layout([[sg.Text(self.RULES_ANALYSIS_TITLE)],
                               [sg.Text("Accuracy: [calculating]", key='-ACCURACY-')],
-                              [sg.Listbox(values=rule_list, size=(100, 50), key="-LIST-")]])
-        self.window['-LIST-'].expand(expand_x=True)
+                              [sg.Table(headings=["Coverage", "Precision", "Rule"], enable_click_events=True,
+                                        values=[["-", "-", r] for r in prism.rules],
+                                        size=(100, 50), key="-TABLE-")]])
 
         self.window.perform_long_operation(lambda: prism.evaluate_dataset(dataset.X_test, dataset.y_test),
                                            '-EVAL-MODEL-DONE-')
+        self.window.perform_long_operation(lambda: prism.evaluate_rules(dataset.X_test, dataset.y_test),
+                                           '-EVAL-RULES-DONE-')
+
+        rules_eval = None
 
         while True:
             event, values = self.window.read()
@@ -80,6 +83,16 @@ class SimpleGui(UserInterface):
             if event == '-EVAL-MODEL-DONE-':
                 d_eval = values[event]
                 self.window['-ACCURACY-'].update(f"Accuracy: {d_eval.accuracy}")
+            if event == '-EVAL-RULES-DONE-':
+                rules_eval = values[event]
+                self.window['-TABLE-'].update(self.__rules_eval_list(rules_eval))
+            if isinstance(event, tuple) and event[0] == "-TABLE-" and event[2][0] == -1 and rules_eval is not None:
+                if event[2][1] == 0:
+                    rules_eval = sorted(rules_eval, key=lambda r: (r.coverage, r.precision), reverse=True)
+                    self.window['-TABLE-'].update(self.__rules_eval_list(rules_eval))
+                elif event[2][1] == 1:
+                    rules_eval = sorted(rules_eval, key=lambda r: (r.precision, r.coverage), reverse=True)
+                    self.window['-TABLE-'].update(self.__rules_eval_list(rules_eval))
 
     def fit_rules(self):
         self.window['-FIT-TEXT-'].update(visible=True)
@@ -97,3 +110,6 @@ class SimpleGui(UserInterface):
         self.layout = layout
         self.window.close()
         self.window = sg.Window(title="Prism", layout=self.layout, margins=(100, 50)).finalize()
+
+    def __rules_eval_list(self, rules_eval: List[RuleEval]) -> List[List[str]]:
+        return [[f"{r.coverage:3.2f}", f"{r.precision:3.2f}", r.rule] for r in rules_eval]
