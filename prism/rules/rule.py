@@ -76,7 +76,7 @@ class Rule:
         return new_rules
 
     def __str__(self):
-        return f"{self.operands} -> {self.cl}"
+        return ' ∧ '.join([f"{att} = {val}" for att, val in self.operands.items()]) + f"  ⇒  {self.cl}"
 
     def __repr__(self):
         return "{'cl':" + self.cl + "," + str(self.operands) + "}"

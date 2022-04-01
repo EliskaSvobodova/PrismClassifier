@@ -12,7 +12,7 @@ from ui.ui import UserInterface
 class SimpleGui(UserInterface):
     def __init__(self):
         self.layout = [[sg.Text(self.TITLE, key="-TITLE-")], [sg.Text(self.SUBTITLE, key="-SUBTITLE-")]]
-        self.window = sg.Window(title="Prism", layout=self.layout, margins=(100, 50))
+        self.window = sg.Window(title="Prism", layout=self.layout, margins=(100, 50)).Finalize()
 
     def welcome_page(self, command_selection: CommandSelection) -> Command:
         self.__switch_layout([[sg.Text(self.TITLE, key="-TITLE-")], [sg.Text(self.SUBTITLE, key="-SUBTITLE-")],
@@ -62,7 +62,14 @@ class SimpleGui(UserInterface):
 
     def analyse_dataset(self, prism: Prism, dataset: Dataset):
         # TODO: list of rules, evaluate rules, evaluate model
-        pass
+        rule_list = [str(r) for r in prism.rules]
+        self.__switch_layout([[sg.Text(self.RULES_ANALYSIS_TITLE)],
+                              [sg.Listbox(values=rule_list, size=(100, 50), key="-LIST-")]])
+        self.window['-LIST-'].expand(expand_x=True)
+        while True:
+            event, values = self.window.read()
+            if event == sg.WIN_CLOSED:
+                return
 
     def fit_rules(self):
         self.window['-FIT-TEXT-'].update(visible=True)

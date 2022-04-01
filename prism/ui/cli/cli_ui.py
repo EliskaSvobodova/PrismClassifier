@@ -41,7 +41,7 @@ class CliUi(UserInterface):
         answer = input(self.SHOULD_LOAD_DATASET + "\n[yes/no] : ")
         answer = answer.lower()
         while answer not in ["yes", "no"]:
-            answer = input("Do you want to load the pre-computed rules? Please, type \"yes\" or \"no\": ")
+            answer = input(self.SHOULD_LOAD_DATASET + " Please, type \"yes\" or \"no\": ")
             answer = answer.lower()
         if answer == "yes":
             return True
@@ -49,10 +49,10 @@ class CliUi(UserInterface):
 
     def analyse_dataset(self, prism: Prism, dataset: Dataset):
         command_selection = self.__init_rules_analysis_com_sel(prism, dataset)
-        command = self.__select_command("Rules analysis", command_selection)
+        command = self.__select_command(self.RULES_ANALYSIS_TITLE, command_selection)
         while command.run():
             self.__horizontal_line()
-            command = self.__select_command("Rules analysis", command_selection)
+            command = self.__select_command(self.RULES_ANALYSIS_TITLE, command_selection)
 
     def fit_rules(self):
         print(self.FIT_RULES_TEXT)

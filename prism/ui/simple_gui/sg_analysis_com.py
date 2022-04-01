@@ -1,3 +1,12 @@
+from typing import List
+
+import pandas as pd
+
+from command_abs import Command
+from prism import Prism
+from rules.rule import Rule
+
+
 class ShowRulesCliCom(Command):
     """
     Show a list of all rules
@@ -16,10 +25,7 @@ class ShowRulesCliCom(Command):
         self.rules: List[Rule] = rules
 
     def run(self):
-        print("Rules:")
-        for r in self.rules:
-            print(f"{r.query()}  -->  {r.cl}")
-        print()
+        pass
         return True
 
 
@@ -43,9 +49,7 @@ class EvaluateModelCliCom(Command):
         self.prism: Prism = prism
 
     def run(self):
-        d_eval = self.prism.evaluate_dataset(self.X_test, self.y_test)
-        print("Model evaluation on selected dataset:")
-        print(f"Accuracy: {d_eval.accuracy}")
+        pass
         return True
 
 
