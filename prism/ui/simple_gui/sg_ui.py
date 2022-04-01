@@ -1,6 +1,8 @@
 import sys
+from multiprocessing import Process
 
 import PySimpleGUI as sg
+import pandas as pd
 
 from command_abs import CommandSelection, Command
 from datasets.dataset import Dataset
@@ -61,15 +63,23 @@ class SimpleGui(UserInterface):
                 return False
 
     def analyse_dataset(self, prism: Prism, dataset: Dataset):
-        # TODO: list of rules, evaluate rules, evaluate model
+        # TODO: evaluate rules
         rule_list = [str(r) for r in prism.rules]
         self.__switch_layout([[sg.Text(self.RULES_ANALYSIS_TITLE)],
+                              [sg.Text("Accuracy: [calculating]", key='-ACCURACY-')],
                               [sg.Listbox(values=rule_list, size=(100, 50), key="-LIST-")]])
         self.window['-LIST-'].expand(expand_x=True)
+
+        self.window.perform_long_operation(lambda: prism.evaluate_dataset(dataset.X_test, dataset.y_test),
+                                           '-EVAL-MODEL-DONE-')
+
         while True:
             event, values = self.window.read()
             if event == sg.WIN_CLOSED:
                 return
+            if event == '-EVAL-MODEL-DONE-':
+                d_eval = values[event]
+                self.window['-ACCURACY-'].update(f"Accuracy: {d_eval.accuracy}")
 
     def fit_rules(self):
         self.window['-FIT-TEXT-'].update(visible=True)
