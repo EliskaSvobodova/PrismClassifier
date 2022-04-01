@@ -55,7 +55,7 @@ class CliUi(UserInterface):
             command = self.__select_command("Rules analysis", command_selection)
 
     def fit_rules(self):
-        print("Extracting rules from the dataset...")
+        print(self.FIT_RULES_TEXT)
 
     def update_progress(self, state: int):
         self.fit_progress_bar.update(state)

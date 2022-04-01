@@ -4,7 +4,7 @@ from application import Application
 from datasets.dataset import Dataset
 from datasets.datasets_manager import DatasetsManager
 from ui.cli.cli_ui import CliUi
-from ui.simple_gui.simple_gui import SimpleGui
+from ui.simple_gui.sg_ui import SimpleGui
 
 
 def init_datasets_manager():

@@ -13,6 +13,7 @@ class UserInterface(FitProgressSubscriber):
     SELECT_DATASET_TITLE = "Select a dataset you want to work with:"
     SHOULD_LOAD_DATASET = "This dataset has pre-computed rules, do you want to load them?\n" \
                           "(otherwise the rules will be computed again from the dataset)"
+    FIT_RULES_TEXT = "Extracting rules from the dataset..."
 
     @abstractmethod
     def welcome_page(self, command_selection: CommandSelection) -> Command:

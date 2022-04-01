@@ -32,8 +32,13 @@ class SimpleGui(UserInterface):
     def select_dataset(self, manager: DatasetsManager) -> Dataset:
         self.__switch_layout([[sg.Text(self.SELECT_DATASET_TITLE)],
                               [sg.Table(headings=["index", "name", "# instances", "# attributes", "# targets", "rules available"],
-                                        values=[[i+1, d.name, d.num_inst, d.num_att, d.num_targ, d.rules_available] for i, d in enumerate(manager.datasets)],
-                                        key='-TABLE-', enable_click_events=True)]])
+                                        values=[[i+1, d.name, d.num_inst, d.num_att, d.num_targ, d.rules_available]
+                                                for i, d in enumerate(manager.datasets)],
+                                        key='-TABLE-', enable_click_events=True)],
+                              [sg.Text(self.FIT_RULES_TEXT, visible=False, key="-FIT-TEXT-")],
+                              [sg.Text(f"Class: ", visible=False, key="-CLASS-TEXT-"),
+                               sg.ProgressBar(100, orientation='h', size=(10, 10), visible=False, key="-PROG-")]])
+        self.window['-PROG-'].expand(expand_x=True)
         while True:
             event, values = self.window.read()
             if event == sg.WIN_CLOSED:
@@ -56,18 +61,22 @@ class SimpleGui(UserInterface):
                 return False
 
     def analyse_dataset(self, prism: Prism, dataset: Dataset):
+        # TODO: list of rules, evaluate rules, evaluate model
         pass
 
     def fit_rules(self):
-        pass
+        self.window['-FIT-TEXT-'].update(visible=True)
+        self.window['-CLASS-TEXT-'].update(visible=True)
+        self.window['-PROG-'].update(visible=True)
 
     def update_progress(self, state: int):
-        pass
+        self.window['-PROG-'].update(state)
 
     def update_class(self, class_name: str, class_num: int, num_classes: int, total_num_it: int):
-        pass
+        self.window['-CLASS-TEXT-'].update(f"Class: {class_name} ({class_num}/{num_classes})")
+        self.window['-PROG-'].update_bar(0, total_num_it)
 
     def __switch_layout(self, layout):
         self.layout = layout
         self.window.close()
-        self.window = sg.Window(title="Prism", layout=self.layout, margins=(100, 50))
+        self.window = sg.Window(title="Prism", layout=self.layout, margins=(100, 50)).finalize()
