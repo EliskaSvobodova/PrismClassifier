@@ -28,6 +28,8 @@ class SelectDatasetCommand(WelcomePageCommand):
 
     def run(self) -> bool:
         dataset = self.ui.select_dataset(self.d_manager)
+        if dataset is None:
+            return True
         if dataset.rules_available and self.ui.should_load_rules():
             self.prism.rules = dataset.load_rules()
         else:
@@ -50,4 +52,6 @@ class UploadDatasetCommand(WelcomePageCommand):
         return "upload new dataset"
 
     def run(self) -> bool:
-        pass
+        dataset = self.ui.upload_dataset(self.d_manager.top_dir)
+        self.d_manager.add_dataset(dataset)
+        return True

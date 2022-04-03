@@ -3,13 +3,15 @@ from typing import Tuple
 
 import pandas as pd
 import numpy as np
+from sklearn.model_selection import train_test_split
 
+# TODO: x y split before prep
 
-def get_prep_data(filename: str, y_name: str) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
+def get_prep_data(filename: str, y_name: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
     df = pd.read_csv(filename)
     df = prep_binning(df)
-    X_train, X_test, y_train, y_test = train_test_split(df.drop(y_name, axis=1), df[y_name])
-    return X_train, X_test, y_train, y_test
+    train, test = train_test_split(df)
+    return train, test
 
 
 def prep_binning(df_orig: pd.DataFrame, max_values: int = 5):
@@ -26,10 +28,3 @@ def prep_binning(df_orig: pd.DataFrame, max_values: int = 5):
         else:
             logging.info(f"{col} - ok ({df[col].nunique()} = {', '.join(str(v) for v in df[col].unique())})")
     return df
-
-
-def train_test_split(X: pd.DataFrame, y: pd.Series, test_size=0.2) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
-    df = pd.concat([X, y], axis=1)
-    train = df.sample(frac=(1 - test_size))
-    test = df.drop(train.index)
-    return train.iloc[:, :-1], test.iloc[:, :-1], train.iloc[:, -1], test.iloc[:, -1]

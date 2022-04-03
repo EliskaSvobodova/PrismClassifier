@@ -34,3 +34,7 @@ class UserInterface(FitProgressSubscriber):
     @abstractmethod
     def fit_rules(self):
         pass
+
+    @abstractmethod
+    def upload_dataset(self, top_dir: str) -> Dataset:
+        pass

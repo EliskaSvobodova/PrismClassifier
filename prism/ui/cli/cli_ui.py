@@ -63,6 +63,10 @@ class CliUi(UserInterface):
     def update_class(self, class_name: str, class_num: int, num_classes: int, total_num_it: int):
         self.fit_progress_bar = ProgressBar(total_num_it, f"Class: {class_name} ({class_num}/{num_classes})")
 
+    def upload_dataset(self, top_dir: str) -> Dataset:
+        # TODO: do this
+        pass
+
     def __init_rules_analysis_com_sel(self, prism, dataset):
         cs = CommandSelection()
         cs.add_command(ShowRulesCliCom(prism.rules))

@@ -1,5 +1,5 @@
 import sys
-from typing import List
+from typing import List, Optional
 
 import PySimpleGUI as sg
 
@@ -31,10 +31,12 @@ class SimpleGui(UserInterface):
             except ValueError:
                 continue
 
-    def select_dataset(self, manager: DatasetsManager) -> Dataset:
+    def select_dataset(self, manager: DatasetsManager) -> Optional[Dataset]:
         self.__switch_layout([[sg.Text(self.SELECT_DATASET_TITLE)],
-                              [sg.Table(headings=["index", "name", "# instances", "# attributes", "# targets", "rules available"],
-                                        values=[[i+1, d.name, d.num_inst, d.num_att, d.num_targ, d.rules_available]
+                              [sg.Table(headings=["index", "name", "# instances", "# attributes", "# targets",
+                                                  "rules available"],
+                                        values=[[i + 1, d.name, len(d.train) + len(d.test), d.num_att, d.num_targ,
+                                                 d.rules_available]
                                                 for i, d in enumerate(manager.datasets)],
                                         key='-TABLE-', enable_click_events=True)],
                               [sg.Text(self.FIT_RULES_TEXT, visible=False, key="-FIT-TEXT-")],
@@ -44,7 +46,7 @@ class SimpleGui(UserInterface):
         while True:
             event, values = self.window.read()
             if event == sg.WIN_CLOSED:
-                sys.exit()
+                return
             if isinstance(event, tuple) and event[0] == "-TABLE-" and event[2][0] != -1:
                 return manager.datasets[event[2][0]]
 
@@ -105,6 +107,32 @@ class SimpleGui(UserInterface):
     def update_class(self, class_name: str, class_num: int, num_classes: int, total_num_it: int):
         self.window['-CLASS-TEXT-'].update(f"Class: {class_name} ({class_num}/{num_classes})")
         self.window['-PROG-'].update_bar(0, total_num_it)
+
+    def upload_dataset(self, top_dir) -> Optional[Dataset]:
+        self.__switch_layout([[sg.Text("Upload new dataset")],
+                              [sg.Text("Choose a csv file:"),
+                               sg.Input(key="-IN-"),
+                               sg.FileBrowse("Browse", target='-IN-')],
+                              [sg.Text("Name of your dataset: "), sg.Input(key="-NAME-")],
+                              [sg.Text("Name of the target variable: "), sg.Input(key="-TARGET-")],
+                              [sg.Button("Upload", key='-UPLOAD-')]])
+
+        while True:
+            event, values = self.window.read()
+            if event == sg.WIN_CLOSED:
+                return
+            if event == '-UPLOAD-':
+                s = values['-IN-']
+                name = values['-NAME-']
+                y_name = values['-TARGET-']
+                try:
+                    dataset = Dataset.create_from_file(s, y_name, name, top_dir)
+                    return dataset
+                except ValueError as e:
+                    layout = [[sg.Text(e.args[0])], [sg.Button("OK")]]
+                    error_window = sg.Window(title="Error while uploading dataset", layout=layout, margins=(100, 50))
+                    error_window.read()
+                    error_window.close()
 
     def __switch_layout(self, layout):
         self.layout = layout
