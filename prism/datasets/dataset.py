@@ -61,8 +61,6 @@ class Dataset:
     def create_from_file(cls, source_filename: str, y_name: str, name: str, top_dir: str, description_file: str = None):
         if not os.path.isfile(source_filename):
             raise ValueError(f"The file {source_filename} doesn't exist!")
-        if not source_filename.endswith(".csv"):
-            raise ValueError(f"The file isn't in csv format!")
 
         dirname = f"{top_dir}/{name.replace(' ', '_')}"
         if os.path.isdir(dirname):
@@ -74,8 +72,31 @@ class Dataset:
                 raise ValueError(f"Description file {description_file} doesn't exist!")
             shutil.copyfile(description_file, f"{dirname}/description")
 
+        config = {"name": name, "y_name": y_name}
+        with open(f"{dirname}/config", "w") as f:
+            f.write(json.dumps(config))
+
         train, test = get_prep_data(source_filename, y_name)
-        train.to_csv(f"{dirname}/train.csv")
-        test.to_csv(f"{dirname}/test.csv")
+        train.to_csv(f"{dirname}/train.csv", index=False)
+        test.to_csv(f"{dirname}/test.csv", index=False)
 
         return cls(dirname, y_name, name, train, test)
+
+    @classmethod
+    def load_from_storage(cls, dirname: str):
+        if not os.path.isdir(dirname):
+            raise ValueError(f"Directory {dirname} doesn't exist!")
+        if not os.path.isfile(f"{dirname}/config"):
+            raise ValueError(f"Directory {dirname} isn't valid dataset repository, there is no config file.")
+        if not os.path.isfile(f"{dirname}/train.csv"):
+            raise ValueError(f"Directory {dirname} isn't valid dataset repository, training data are missing.")
+        if not os.path.isfile(f"{dirname}/test.csv"):
+            raise ValueError(f"Directory {dirname} isn't valid dataset repository, testing data are missing.")
+
+        with open(f"{dirname}/config", "r") as f:
+            config = json.loads(f.read())
+
+        train = pd.read_csv(f"{dirname}/train.csv")
+        test = pd.read_csv(f"{dirname}/test.csv")
+
+        return cls(dirname, config["y_name"], config["name"], train, test)

@@ -53,5 +53,6 @@ class UploadDatasetCommand(WelcomePageCommand):
 
     def run(self) -> bool:
         dataset = self.ui.upload_dataset(self.d_manager.top_dir)
-        self.d_manager.add_dataset(dataset)
+        if dataset is not None:
+            self.d_manager.add_dataset(dataset)
         return True

@@ -113,20 +113,25 @@ class SimpleGui(UserInterface):
                               [sg.Text("Choose a csv file:"),
                                sg.Input(key="-IN-"),
                                sg.FileBrowse("Browse", target='-IN-')],
+                              [sg.Text("Choose a description file (optional):"),
+                               sg.Input(key="-IN-DESCR-"),
+                               sg.FileBrowse("Browse", target='-IN-DESCR-')],
                               [sg.Text("Name of your dataset: "), sg.Input(key="-NAME-")],
                               [sg.Text("Name of the target variable: "), sg.Input(key="-TARGET-")],
-                              [sg.Button("Upload", key='-UPLOAD-')]])
+                              [sg.Button("Upload", key='-UPLOAD-'), sg.Button("Cancel", key="-CANCEL-")]])
 
         while True:
             event, values = self.window.read()
-            if event == sg.WIN_CLOSED:
+            if event == sg.WIN_CLOSED or event == '-CANCEL-':
                 return
             if event == '-UPLOAD-':
-                s = values['-IN-']
-                name = values['-NAME-']
-                y_name = values['-TARGET-']
                 try:
-                    dataset = Dataset.create_from_file(s, y_name, name, top_dir)
+                    if len(values['-IN-DESCR-']) > 0:
+                        dataset = Dataset.create_from_file(values['-IN-'], values['-TARGET-'], values['-NAME-'],
+                                                           top_dir, values['-IN-DESCR-'])
+                    else:
+                        dataset = Dataset.create_from_file(values['-IN-'], values['-TARGET-'], values['-NAME-'],
+                                                           top_dir)
                     return dataset
                 except ValueError as e:
                     layout = [[sg.Text(e.args[0])], [sg.Button("OK")]]
