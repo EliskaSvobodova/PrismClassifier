@@ -69,6 +69,7 @@ class Dataset:
 
         if description_file is not None:
             if not os.path.isfile(description_file):
+                os.rmdir(dirname)
                 raise ValueError(f"Description file {description_file} doesn't exist!")
             shutil.copyfile(description_file, f"{dirname}/description")
 
