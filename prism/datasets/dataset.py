@@ -5,7 +5,7 @@ from typing import List
 
 import pandas as pd
 
-from datasets.preprocessing import get_prep_data
+from datasets.preprocessing import DataPreprocessor
 from rules.rule import Rule
 
 
@@ -77,7 +77,9 @@ class Dataset:
         with open(f"{dirname}/config", "w") as f:
             f.write(json.dumps(config))
 
-        train, test = get_prep_data(source_filename, y_name)
+        prep = DataPreprocessor(source_filename, y_name)
+        prep.apply_binning()
+        train, test = prep.get_train_test()
         train.to_csv(f"{dirname}/train.csv", index=False)
         test.to_csv(f"{dirname}/test.csv", index=False)
 
