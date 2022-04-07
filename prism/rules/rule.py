@@ -79,4 +79,4 @@ class Rule:
         return ' ∧ '.join([f"{att} = {val}" for att, val in self.operands.items()]) + f"  ⇒  {self.cl}"
 
     def __repr__(self):
-        return "{'cl':" + self.cl + "," + str(self.operands) + "}"
+        return "{'cl':" + str(self.cl) + "," + str(self.operands) + "}"
