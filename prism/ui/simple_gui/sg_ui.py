@@ -12,13 +12,22 @@ from ui.ui import UserInterface
 
 
 class SimpleGui(UserInterface):
+    FONT = "Noto Sans CJK TC"
+    H1_SIZE = 25
+    H2_SIZE = 18
+    TEXT_SIZE = 13
+
     def __init__(self):
-        self.layout = [[sg.Text(self.TITLE, key="-TITLE-")], [sg.Text(self.SUBTITLE, key="-SUBTITLE-")]]
-        self.window = sg.Window(title="Prism", layout=self.layout, margins=(100, 50)).Finalize()
+        sg.theme("LightBlue6")
+        self.layout = []
+        self.window = sg.Window("Prism")
 
     def welcome_page(self, command_selection: CommandSelection) -> Command:
-        self.__switch_layout([[sg.Text(self.TITLE, key="-TITLE-")], [sg.Text(self.SUBTITLE, key="-SUBTITLE-")],
-                              *[[sg.Button(c.name)] for c in command_selection.commands]])
+        self.__switch_layout([[self.h1(self.TITLE, key="-TITLE-")],
+                              [self.h2(self.SUBTITLE, key="-SUBTITLE-")],
+                              [sg.VPush()],
+                              *[[self.button(c.name, expand_x=True)] for c in command_selection.commands],
+                              [sg.VPush()]])
         command_names = [c.name for c in command_selection.commands]
 
         while True:
@@ -32,17 +41,17 @@ class SimpleGui(UserInterface):
                 continue
 
     def select_dataset(self, manager: DatasetsManager) -> Optional[Dataset]:
-        self.__switch_layout([[sg.Text(self.SELECT_DATASET_TITLE)],
+        self.__switch_layout([[self.h2(self.SELECT_DATASET_TITLE)],
                               [sg.Table(headings=["index", "name", "# instances", "# attributes", "# targets",
                                                   "rules available"],
                                         values=[[i + 1, d.name, len(d.train) + len(d.test), d.num_att, d.num_targ,
                                                  d.rules_available]
                                                 for i, d in enumerate(manager.datasets)],
-                                        key='-TABLE-', enable_click_events=True)],
-                              [sg.Text(self.FIT_RULES_TEXT, visible=False, key="-FIT-TEXT-")],
-                              [sg.Text(f"Class: ", visible=False, key="-CLASS-TEXT-"),
+                                        key='-TABLE-', enable_click_events=True, font=(self.FONT, self.TEXT_SIZE))],
+                              [self.text(self.FIT_RULES_TEXT, visible=False, key="-FIT-TEXT-")],
+                              [self.text(f"Class: ", visible=False, key="-CLASS-TEXT-"),
                                sg.ProgressBar(100, orientation='h', size=(10, 10), visible=False, key="-PROG-")]])
-        self.window['-PROG-'].expand(expand_x=True)
+
         while True:
             event, values = self.window.read()
             if event == sg.WIN_CLOSED:
@@ -51,7 +60,8 @@ class SimpleGui(UserInterface):
                 return manager.datasets[event[2][0]]
 
     def should_load_rules(self) -> bool:
-        layout = [[sg.Text(self.SHOULD_LOAD_DATASET)], [sg.Button("Yes", key="-YES-"), sg.Button("No", key="-NO-")]]
+        layout = [[self.text(self.SHOULD_LOAD_DATASET)],
+                  [sg.Push(), self.button("Yes", key="-YES-"), sg.Push(), self.button("No", key="-NO-"), sg.Push()]]
         pop_window = sg.Window(title="Load data", layout=layout, margins=(100, 50))
         while True:
             event, values = pop_window.read()
@@ -65,11 +75,13 @@ class SimpleGui(UserInterface):
                 return False
 
     def analyse_dataset(self, prism: Prism, dataset: Dataset):
-        self.__switch_layout([[sg.Text(self.RULES_ANALYSIS_TITLE)],
-                              [sg.Text("Accuracy: [calculating]", key='-ACCURACY-')],
+        self.__switch_layout([[self.h2(self.RULES_ANALYSIS_TITLE)],
+                              [self.text("Accuracy: [calculating]", key='-ACCURACY-')],
                               [sg.Table(headings=["Coverage", "Precision", "Rule"], enable_click_events=True,
-                                        values=[["-", "-", r] for r in prism.rules],
-                                        size=(100, 50), key="-TABLE-")]])
+                                        values=[["-", "-", r] for r in prism.rules], vertical_scroll_only=False,
+                                        auto_size_columns=False, justification='left',
+                                        col_widths=[10, 10, int(max(len(repr(r)) for r in prism.rules) * 0.8)],
+                                        size=(100, 50), key="-TABLE-", font=(self.FONT, self.TEXT_SIZE))]])
 
         self.window.perform_long_operation(lambda: prism.evaluate_dataset(dataset.X_test, dataset.y_test),
                                            '-EVAL-MODEL-DONE-')
@@ -100,6 +112,7 @@ class SimpleGui(UserInterface):
         self.window['-FIT-TEXT-'].update(visible=True)
         self.window['-CLASS-TEXT-'].update(visible=True)
         self.window['-PROG-'].update(visible=True)
+        self.window['-PROG-'].expand(expand_x=True)
 
     def update_progress(self, state: int):
         self.window['-PROG-'].update(state)
@@ -109,16 +122,12 @@ class SimpleGui(UserInterface):
         self.window['-PROG-'].update_bar(0, total_num_it)
 
     def upload_dataset(self, top_dir) -> Optional[Dataset]:
-        self.__switch_layout([[sg.Text("Upload new dataset")],
-                              [sg.Text("Choose a csv file:"),
-                               sg.Input(key="-IN-"),
-                               sg.FileBrowse("Browse", target='-IN-')],
-                              [sg.Text("Choose a description file (optional):"),
-                               sg.Input(key="-IN-DESCR-"),
-                               sg.FileBrowse("Browse", target='-IN-DESCR-')],
-                              [sg.Text("Name of your dataset: "), sg.Input(key="-NAME-")],
-                              [sg.Text("Name of the target variable: "), sg.Input(key="-TARGET-")],
-                              [sg.Button("Upload", key='-UPLOAD-'), sg.Button("Cancel", key="-CANCEL-")]])
+        self.__switch_layout([[self.text("Upload new dataset")],
+                              [self.text("Choose a csv file:"), self.input(key="-IN-"), self.browse("Browse", target='-IN-')],
+                              [self.text("Choose a description file (optional):"), self.input(key="-IN-DESCR-"), self.browse("Browse", target='-IN-DESCR-')],
+                              [self.text("Name of your dataset: "), self.input(key="-NAME-")],
+                              [self.text("Name of the target variable: "), self.input(key="-TARGET-")],
+                              [self.button("Upload", key='-UPLOAD-'), self.button("Cancel", key="-CANCEL-")]])
 
         while True:
             event, values = self.window.read()
@@ -141,8 +150,29 @@ class SimpleGui(UserInterface):
 
     def __switch_layout(self, layout):
         self.layout = layout
+        self.layout.append([sg.VPush()])
+        self.layout.insert(0, [sg.VPush()])
         self.window.close()
-        self.window = sg.Window(title="Prism", layout=self.layout, margins=(100, 50)).finalize()
+        self.window = sg.Window(title="Prism", layout=self.layout, size=(1000, 800), element_justification='c',
+                                finalize=True)
 
     def __rules_eval_list(self, rules_eval: List[RuleEval]) -> List[List[str]]:
         return [[f"{r.coverage:3.2f}", f"{r.precision:3.2f}", r.rule] for r in rules_eval]
+
+    def button(self, text, **kwargs):
+        return sg.Button(text, **kwargs, font=(self.FONT, self.TEXT_SIZE))
+
+    def input(self, **kwargs):
+        return sg.Input(**kwargs, font=(self.FONT, self.TEXT_SIZE))
+
+    def browse(self, text="Browse", **kwargs):
+        return sg.FileBrowse(text, **kwargs, font=(self.FONT, self.TEXT_SIZE))
+
+    def h1(self, text, **kwargs):
+        return sg.Text(text, **kwargs, font=(self.FONT, self.H1_SIZE))
+
+    def h2(self, text, **kwargs):
+        return sg.Text(text, **kwargs, font=(self.FONT, self.H2_SIZE))
+
+    def text(self, text, **kwargs):
+        return sg.Text(text, **kwargs, font=(self.FONT, self.TEXT_SIZE))
