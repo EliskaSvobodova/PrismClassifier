@@ -59,7 +59,7 @@ class Dataset:
         return rules
 
     @classmethod
-    def create_from_file(cls, source_filename: str, y_name: str, name: str, top_dir: str, description_file: str = None):
+    def create_from_file(cls, source_filename: str, y_name: str, name: str, top_dir: str):
         if not os.path.isfile(source_filename):
             raise ValueError(f"The file {source_filename} doesn't exist!")
 
@@ -67,12 +67,6 @@ class Dataset:
         if os.path.isdir(dirname):
             raise ValueError(f"Dataset directory {dirname}/ already exists! Please, select different dataset name.")
         os.mkdir(dirname)
-
-        if description_file is not None:
-            if not os.path.isfile(description_file):
-                os.rmdir(dirname)
-                raise ValueError(f"Description file {description_file} doesn't exist!")
-            shutil.copyfile(description_file, f"{dirname}/description")
 
         prep = DataPreprocessor(source_filename, y_name)
         prep.apply_binning()

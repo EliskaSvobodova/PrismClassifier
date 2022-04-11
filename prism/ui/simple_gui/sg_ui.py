@@ -169,7 +169,6 @@ class SimpleGui(UserInterface):
     def upload_dataset(self, top_dir) -> Optional[Dataset]:
         self.__switch_layout([[self.text("Upload new dataset")],
                               [self.text("Choose a csv file:"), self.input(key="-IN-"), self.browse("Browse", target='-IN-')],
-                              [self.text("Choose a description file (optional):"), self.input(key="-IN-DESCR-"), self.browse("Browse", target='-IN-DESCR-')],
                               [self.text("Name of your dataset: "), self.input(key="-NAME-")],
                               [self.text("Name of the target variable: "), self.input(key="-TARGET-")],
                               [self.button("Upload", key='-UPLOAD-'), self.button("Cancel", key="-CANCEL-")]])
@@ -180,12 +179,7 @@ class SimpleGui(UserInterface):
                 return
             if event == '-UPLOAD-':
                 try:
-                    if len(values['-IN-DESCR-']) > 0:
-                        dataset = Dataset.create_from_file(values['-IN-'], values['-TARGET-'], values['-NAME-'],
-                                                           top_dir, values['-IN-DESCR-'])
-                    else:
-                        dataset = Dataset.create_from_file(values['-IN-'], values['-TARGET-'], values['-NAME-'],
-                                                           top_dir)
+                    dataset = Dataset.create_from_file(values['-IN-'], values['-TARGET-'], values['-NAME-'], top_dir)
                     return dataset
                 except ValueError as e:
                     layout = [[sg.Text(e.args[0])], [sg.Button("OK")]]
