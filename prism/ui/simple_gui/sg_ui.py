@@ -1,5 +1,5 @@
 import sys
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 import PySimpleGUI as sg
 
@@ -16,6 +16,12 @@ class SimpleGui(UserInterface):
     H1_SIZE = 25
     H2_SIZE = 18
     TEXT_SIZE = 13
+    HINTS = [
+        "You can sort the rules by a column value by clicking on the column's heading",
+        f"Columns with too many values were binned,\n"
+            f"if you want to see the mapping between originial values and the current numerical categories,\n"
+            f"press 'Binning explanation' button"
+    ]
 
     def __init__(self):
         sg.theme("LightBlue6")
@@ -50,7 +56,7 @@ class SimpleGui(UserInterface):
                                         key='-TABLE-', enable_click_events=True, font=(self.FONT, self.TEXT_SIZE))],
                               [self.text(self.FIT_RULES_TEXT, visible=False, key="-FIT-TEXT-")],
                               [self.text(f"Class: ", visible=False, key="-CLASS-TEXT-"),
-                               sg.ProgressBar(100, orientation='h', size=(10, 10), visible=False, key="-PROG-")]])
+                               sg.ProgressBar(100, orientation='h', size=(10, 10), visible=False, key="-PROG-", bar_color=("#6A759B", "#BDC7F1"))]])
 
         while True:
             event, values = self.window.read()
@@ -76,7 +82,9 @@ class SimpleGui(UserInterface):
 
     def analyse_dataset(self, prism: Prism, dataset: Dataset):
         self.__switch_layout([[self.h2(self.RULES_ANALYSIS_TITLE)],
-                              [self.text("Accuracy: [calculating]", key='-ACCURACY-')],
+                              [self.text("Accuracy: [calculating]", key='-ACCURACY-'),
+                               self.button("Binning explanation", key='-BINNING-'),
+                               self.button("Usage hints", key='-SHOW-HINTS-')],
                               [sg.Table(headings=["Coverage", "Precision", "Rule"], enable_click_events=True,
                                         values=[["-", "-", r] for r in prism.rules], vertical_scroll_only=False,
                                         auto_size_columns=False, justification='left',
@@ -88,12 +96,25 @@ class SimpleGui(UserInterface):
         self.window.perform_long_operation(lambda: prism.evaluate_rules(dataset.X_test, dataset.y_test),
                                            '-EVAL-RULES-DONE-')
 
+        hints_window, bin_window = None, None
         rules_eval = None
+        hint_i = 0
 
         while True:
-            event, values = self.window.read()
+            window, event, values = sg.read_all_windows()
             if event == sg.WIN_CLOSED:
-                return
+                if window == hints_window:
+                    hints_window.close()
+                    hints_window = None
+                elif window == bin_window:
+                    bin_window.close()
+                    bin_window = None
+                else:
+                    if hints_window is not None:
+                        hints_window.close()
+                    if bin_window is not None:
+                        bin_window.close()
+                    return
             if event == '-EVAL-MODEL-DONE-':
                 d_eval = values[event]
                 self.window['-ACCURACY-'].update(f"Accuracy: {d_eval.accuracy}")
@@ -107,6 +128,30 @@ class SimpleGui(UserInterface):
                 elif event[2][1] == 1:
                     rules_eval = sorted(rules_eval, key=lambda r: (r.precision, r.coverage), reverse=True)
                     self.window['-TABLE-'].update(self.__rules_eval_list(rules_eval))
+            if event == '-SHOW-HINTS-':
+                hints_window = self.create_hints_window()
+            if event == '-HINTS-NEXT-':
+                hint_i = (hint_i + 1) % len(self.HINTS)
+                window['-HINTS-HINT-'].update(self.HINTS[hint_i])
+            if event == '-BINNING-':
+                bin_window = self.create_binning_info_window(dataset.binning_info)
+
+    def create_hints_window(self):
+        hint_i = 0
+        layout = [[self.h2("Hints")],
+                  [self.text(self.HINTS[hint_i], key='-HINTS-HINT-')],
+                  [self.button("Next hint", key="-HINTS-NEXT-")]]
+        return sg.Window("Prism - Hints", layout=layout, margins=(100, 50), finalize=True)
+
+    def create_binning_info_window(self, info: Dict):
+        num_cat = max(len(i) for att, i in info.items())
+        layout = [[self.h2("Binning information")],
+                  [self.text("Attributes with too many values were binned,\n"
+                             "here you can see a mapping between the original values and the numerical categories")],
+                  [sg.Table(headings=["Attribute"] + [f"Category {c}" for c in range(num_cat)],
+                            enable_click_events=True, values=[[att] + list(i.values()) for att, i in info.items()],
+                            key="-BIN-TABLE-", font=(self.FONT, self.TEXT_SIZE), justification='center')]]
+        return sg.Window("Prism - Binning information", layout=layout, margins=(100, 50), finalize=True)
 
     def fit_rules(self):
         self.window['-FIT-TEXT-'].update(visible=True)

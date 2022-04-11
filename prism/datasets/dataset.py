@@ -10,13 +10,14 @@ from rules.rule import Rule
 
 
 class Dataset:
-    def __init__(self, dirname: str, y_name: str, name: str, train: pd.DataFrame, test: pd.DataFrame):
+    def __init__(self, dirname: str, y_name: str, name: str, train: pd.DataFrame, test: pd.DataFrame, binning_info=None, binning_max=None):
         self.dirname = dirname
         self.y_name = y_name
         self.name = name
         self.train, self.test = train, test
         self.num_att = len(self.train.columns) - 1
         self.num_targ = self.train[self.y_name].nunique()
+        self.binning_info = binning_info
 
     @property
     def rules_filename(self):
@@ -73,17 +74,17 @@ class Dataset:
                 raise ValueError(f"Description file {description_file} doesn't exist!")
             shutil.copyfile(description_file, f"{dirname}/description")
 
-        config = {"name": name, "y_name": y_name}
-        with open(f"{dirname}/config", "w") as f:
-            f.write(json.dumps(config))
-
         prep = DataPreprocessor(source_filename, y_name)
         prep.apply_binning()
         train, test = prep.get_train_test()
         train.to_csv(f"{dirname}/train.csv", index=False)
         test.to_csv(f"{dirname}/test.csv", index=False)
 
-        return cls(dirname, y_name, name, train, test)
+        config = {"name": name, "y_name": y_name, "binning_info": prep.binning_info}
+        with open(f"{dirname}/config", "w") as f:
+            f.write(json.dumps(config))
+
+        return cls(dirname, y_name, name, train, test, prep.binning_info)
 
     @classmethod
     def load_from_storage(cls, dirname: str):
@@ -102,4 +103,4 @@ class Dataset:
         train = pd.read_csv(f"{dirname}/train.csv")
         test = pd.read_csv(f"{dirname}/test.csv")
 
-        return cls(dirname, config["y_name"], config["name"], train, test)
+        return cls(dirname, config["y_name"], config["name"], train, test, config["binning_info"])
