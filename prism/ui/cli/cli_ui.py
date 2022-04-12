@@ -26,7 +26,7 @@ class CliUi(UserInterface):
         table.field_names = ["index", "name", "# instances", "# attributes", "# targets", "rules available"]
 
         for i, d in enumerate(manager.datasets_list):
-            table.add_row([i+1, d.name, d.num_inst, d.num_att, d.num_targ, d.rules_available])
+            table.add_row([i+1, d.name, len(d.test) + len(d.train), d.num_att, d.num_targ, d.rules_available])
 
         print(self.SELECT_DATASET_TITLE)
         print(table)
@@ -71,7 +71,7 @@ class CliUi(UserInterface):
         cs = CommandSelection()
         cs.add_command(ShowRulesCliCom(prism.rules))
         cs.add_command(EvaluateModelCliCom(prism, dataset.X_test, dataset.y_test))
-        cs.add_command(EvaluateRulesCliCom(prism, dataset.X_test, dataset.y_test))
+        cs.add_command(EvaluateRulesCliCom(prism, dataset.X_train, dataset.y_train))
         cs.add_command(ExitCommand())
         return cs
 

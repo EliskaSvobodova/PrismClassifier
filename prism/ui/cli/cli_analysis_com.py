@@ -71,14 +71,14 @@ class EvaluateRulesCliCom(Command):
     def description(self):
         return "apply each of the rules to the test dataset and get their metrics"
 
-    def __init__(self, prism: Prism, X_test: pd.DataFrame, y_test: pd.Series):
+    def __init__(self, prism: Prism, X_train: pd.DataFrame, y_train: pd.Series):
         super().__init__()
-        self.X_test: pd.DataFrame = X_test
-        self.y_test: pd.Series = y_test
+        self.X_train: pd.DataFrame = X_train
+        self.y_train: pd.Series = y_train
         self.prism: Prism = prism
 
     def run(self) -> bool:
-        rules_eval = self.prism.evaluate_rules(self.X_test, self.y_test)
+        rules_eval = self.prism.evaluate_rules(self.X_train, self.y_train)
         print(f" Coverage | Precision | Rule")
         print(f"----------+-----------+-----")
         for rule_eval in sorted(rules_eval, key=lambda r: (r.coverage, r.precision), reverse=True):

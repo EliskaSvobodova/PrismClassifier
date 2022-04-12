@@ -93,7 +93,7 @@ class SimpleGui(UserInterface):
 
         self.window.perform_long_operation(lambda: prism.evaluate_dataset(dataset.X_test, dataset.y_test),
                                            '-EVAL-MODEL-DONE-')
-        self.window.perform_long_operation(lambda: prism.evaluate_rules(dataset.X_test, dataset.y_test),
+        self.window.perform_long_operation(lambda: prism.evaluate_rules(dataset.X_train, dataset.y_train),
                                            '-EVAL-RULES-DONE-')
 
         hints_window, bin_window = None, None
@@ -117,7 +117,7 @@ class SimpleGui(UserInterface):
                     return
             if event == '-EVAL-MODEL-DONE-':
                 d_eval = values[event]
-                self.window['-ACCURACY-'].update(f"Accuracy: {d_eval.accuracy}")
+                self.window['-ACCURACY-'].update(f"Accuracy: {d_eval.accuracy:.4f}")
             if event == '-EVAL-RULES-DONE-':
                 rules_eval = values[event]
                 self.window['-TABLE-'].update(self.__rules_eval_list(rules_eval))
