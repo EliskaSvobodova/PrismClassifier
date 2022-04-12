@@ -46,12 +46,12 @@ class SimpleGui(UserInterface):
         return command_selection.commands[i]
 
     def select_dataset(self, manager: DatasetsManager) -> Optional[Dataset]:
+        datasets = [[i + 1, d.name, len(d.train) + len(d.test), d.num_att, d.num_targ, d.rules_available]
+                    for i, d in enumerate(manager.datasets)]
         self.__switch_layout([[self.h2(self.SELECT_DATASET_TITLE)],
                               [sg.Table(headings=["index", "name", "# instances", "# attributes", "# targets",
                                                   "rules available"],
-                                        values=[[i + 1, d.name, len(d.train) + len(d.test), d.num_att, d.num_targ,
-                                                 d.rules_available]
-                                                for i, d in enumerate(manager.datasets)],
+                                        values=datasets,
                                         key='-TABLE-', enable_click_events=True, font=(self.FONT, self.TEXT_SIZE))],
                               [self.text(self.FIT_RULES_TEXT, visible=False, key="-FIT-TEXT-")],
                               [self.text(f"Class: ", visible=False, key="-CLASS-TEXT-"),
@@ -65,6 +65,9 @@ class SimpleGui(UserInterface):
                 return
             if isinstance(event, tuple) and event[0] == "-TABLE-" and event[2][0] != -1:
                 return manager.datasets[event[2][0]]
+            if isinstance(event, tuple) and event[0] == "-TABLE-" and event[2][0] == -1:
+                datasets = sorted(datasets, key=lambda d: d[event[2][1]])
+                self.window['-TABLE-'].update(datasets)
 
     def should_load_rules(self) -> bool:
         layout = [[self.text(self.SHOULD_LOAD_DATASET)],
