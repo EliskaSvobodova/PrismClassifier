@@ -13,14 +13,14 @@ class WelcomePageCommand(Command, ABC):
         self.d_manager = datasets_manager
 
 
-class SelectDatasetCommand(WelcomePageCommand):
+class ClassifierCommand(WelcomePageCommand):
     @property
     def name(self):
-        return "select dataset"
+        return "Classifier"
 
     @property
     def description(self):
-        return "select a dataset from the list and perform analysis of prism on it"
+        return "select a dataset from the list, induce classification rules and perform analysis of prism on it"
 
     def __init__(self, prism: Prism, ui: UserInterface, datasets_manager: DatasetsManager):
         super().__init__(ui, datasets_manager)
@@ -45,7 +45,7 @@ class SelectDatasetCommand(WelcomePageCommand):
 class UploadDatasetCommand(WelcomePageCommand):
     @property
     def name(self):
-        return "upload dataset"
+        return "Upload dataset"
 
     @property
     def description(self):

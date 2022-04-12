@@ -32,7 +32,7 @@ class CommandSelection:
 class ExitCommand(Command):
     @property
     def name(self):
-        return "exit"
+        return "Exit"
 
     @property
     def description(self):
