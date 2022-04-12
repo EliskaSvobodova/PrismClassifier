@@ -96,15 +96,16 @@ class Prism(FitProgressPublisher):
     def evaluate_dataset(self, X_test: pd.DataFrame, y_test: pd.Series):
         y_obt = self.classify(X_test)
         diff = y_test.compare(y_obt)
-        return DatasetEval((len(X_test) - len(diff)) / len(X_test))
+        num_correct = len(X_test) - len(diff)
+        return DatasetEval(num_correct / len(X_test), num_correct / y_obt.count())
 
-    def evaluate_rules(self, X_test: pd.DataFrame, y_test: pd.Series) -> List[RuleEval]:
-        y_val_counts = y_test.value_counts()
+    def evaluate_rules(self, X_train: pd.DataFrame, y_train: pd.Series) -> List[RuleEval]:
+        y_val_counts = y_train.value_counts()
         results: List[RuleEval] = []
         for rule in self.rules:
-            X_match = rule.match(X_test)
-            match = X_match.join(y_test, how='inner')
-            correct_match = match[match[y_test.name] == rule.cl]
+            X_match = rule.match(X_train)
+            match = X_match.join(y_train, how='inner')
+            correct_match = match[match[y_train.name] == rule.cl]
             coverage = len(correct_match) / y_val_counts[rule.cl] if y_val_counts[rule.cl] != 0 else 0
             precision = (len(correct_match) / len(match)) if len(match) != 0 else 0
             results.append(RuleEval(precision, coverage, rule))

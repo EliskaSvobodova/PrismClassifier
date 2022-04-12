@@ -20,7 +20,10 @@ class SimpleGui(UserInterface):
         "You can sort the rules by a column value by clicking on the column's heading",
         f"Columns with too many values were binned,\n"
             f"if you want to see the mapping between originial values and the current numerical categories,\n"
-            f"press 'Binning explanation' button"
+            f"press 'Binning explanation' button",
+        "'Accuracy all' = [number of correctly classified instances] / [number of all instances]\n"
+            "'Accuracy classified' = [number of correctly classified instances] / [number of classified instances]\n"
+            "(some instances might not fit any rule and therefore remain unclassified)"
     ]
 
     def __init__(self):
@@ -117,7 +120,7 @@ class SimpleGui(UserInterface):
                     return
             if event == '-EVAL-MODEL-DONE-':
                 d_eval = values[event]
-                self.window['-ACCURACY-'].update(f"Accuracy: {d_eval.accuracy:.4f}")
+                self.window['-ACCURACY-'].update(f"Accuracy all: {d_eval.accuracy_all:.4f}    Accuracy classified: {d_eval.accuracy_classified:.4f}")
             if event == '-EVAL-RULES-DONE-':
                 rules_eval = values[event]
                 self.window['-TABLE-'].update(self.__rules_eval_list(rules_eval))
