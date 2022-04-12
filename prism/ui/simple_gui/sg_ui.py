@@ -39,15 +39,11 @@ class SimpleGui(UserInterface):
                               [sg.VPush()]])
         command_names = [c.name for c in command_selection.commands]
 
-        while True:
-            event, values = self.window.read()
-            if event == sg.WIN_CLOSED:
-                sys.exit()
-            try:
-                i = command_names.index(event)
-                return command_selection.commands[i]
-            except ValueError:
-                continue
+        event, values = self.window.read()
+        if event == sg.WIN_CLOSED:
+            sys.exit()
+        i = command_names.index(event)
+        return command_selection.commands[i]
 
     def select_dataset(self, manager: DatasetsManager) -> Optional[Dataset]:
         self.__switch_layout([[self.h2(self.SELECT_DATASET_TITLE)],
@@ -59,11 +55,13 @@ class SimpleGui(UserInterface):
                                         key='-TABLE-', enable_click_events=True, font=(self.FONT, self.TEXT_SIZE))],
                               [self.text(self.FIT_RULES_TEXT, visible=False, key="-FIT-TEXT-")],
                               [self.text(f"Class: ", visible=False, key="-CLASS-TEXT-"),
-                               sg.ProgressBar(100, orientation='h', size=(10, 10), visible=False, key="-PROG-", bar_color=("#6A759B", "#BDC7F1"))]])
+                               sg.ProgressBar(100, orientation='h', size=(10, 10), visible=False, key="-PROG-", bar_color=("#6A759B", "#BDC7F1"))],
+                              [self.button("Back", key="-BACK-")]])
 
+        # TODO: sorting
         while True:
             event, values = self.window.read()
-            if event == sg.WIN_CLOSED:
+            if event == sg.WIN_CLOSED or event == '-BACK-':
                 return
             if isinstance(event, tuple) and event[0] == "-TABLE-" and event[2][0] != -1:
                 return manager.datasets[event[2][0]]
@@ -72,16 +70,13 @@ class SimpleGui(UserInterface):
         layout = [[self.text(self.SHOULD_LOAD_DATASET)],
                   [sg.Push(), self.button("Yes", key="-YES-"), sg.Push(), self.button("No", key="-NO-"), sg.Push()]]
         pop_window = sg.Window(title="Load data", layout=layout, margins=(100, 50))
-        while True:
-            event, values = pop_window.read()
-            if event == sg.WIN_CLOSED:
-                sys.exit()
-            if event == "-YES-":
-                pop_window.close()
-                return True
-            if event == "-NO-":
-                pop_window.close()
-                return False
+        event, values = pop_window.read()
+        if event == "-YES-":
+            pop_window.close()
+            return True
+        if event == "-NO-" or event == sg.WIN_CLOSED:
+            pop_window.close()
+            return False
 
     def analyse_dataset(self, prism: Prism, dataset: Dataset):
         self.__switch_layout([[self.h2(self.RULES_ANALYSIS_TITLE)],
@@ -90,9 +85,10 @@ class SimpleGui(UserInterface):
                                self.button("Usage hints", key='-SHOW-HINTS-')],
                               [sg.Table(headings=["Coverage", "Precision", "Rule"], enable_click_events=True,
                                         values=[["-", "-", r] for r in prism.rules], vertical_scroll_only=False,
-                                        auto_size_columns=False, justification='left',
+                                        auto_size_columns=False, justification='left', expand_y=True,
                                         col_widths=[10, 10, int(max(len(repr(r)) for r in prism.rules) * 0.8)],
-                                        size=(100, 50), key="-TABLE-", font=(self.FONT, self.TEXT_SIZE))]])
+                                        key="-TABLE-", font=(self.FONT, self.TEXT_SIZE))],
+                              [self.button("Back", key="-BACK-")]])
 
         self.window.perform_long_operation(lambda: prism.evaluate_dataset(dataset.X_test, dataset.y_test),
                                            '-EVAL-MODEL-DONE-')
@@ -105,7 +101,7 @@ class SimpleGui(UserInterface):
 
         while True:
             window, event, values = sg.read_all_windows()
-            if event == sg.WIN_CLOSED:
+            if event == sg.WIN_CLOSED or event == '-BACK-':
                 if window == hints_window:
                     hints_window.close()
                     hints_window = None

@@ -53,8 +53,8 @@ class EvaluateModelCliCom(Command):
 
     def run(self):
         d_eval = self.prism.evaluate_dataset(self.X_test, self.y_test)
-        print("Model evaluation on selected dataset:")
-        print(f"Accuracy: {d_eval.accuracy}")
+        print("\nModel evaluation on selected dataset:")
+        print(f"Accuracy all: {d_eval.accuracy_all:.4f}\nAccuracy classified: {d_eval.accuracy_classified:.4f}")
         return True
 
 
@@ -79,6 +79,7 @@ class EvaluateRulesCliCom(Command):
 
     def run(self) -> bool:
         rules_eval = self.prism.evaluate_rules(self.X_train, self.y_train)
+        print("\nRules analysis:")
         print(f" Coverage | Precision | Rule")
         print(f"----------+-----------+-----")
         for rule_eval in sorted(rules_eval, key=lambda r: (r.coverage, r.precision), reverse=True):

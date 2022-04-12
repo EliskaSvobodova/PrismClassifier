@@ -36,7 +36,20 @@ class ExitCommand(Command):
 
     @property
     def description(self):
-        return "exit current menu and return to the previous one / exit the application"
+        return "exit the application"
 
     def run(self):
+        return False
+
+
+class BackCommand(Command):
+    @property
+    def name(self):
+        return "Back"
+
+    @property
+    def description(self):
+        return "return to the previous menu"
+
+    def run(self) -> bool:
         return False

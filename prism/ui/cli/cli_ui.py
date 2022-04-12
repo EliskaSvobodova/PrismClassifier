@@ -2,7 +2,7 @@ from typing import Optional
 
 from prettytable import PrettyTable
 
-from command_abs import CommandSelection, Command, ExitCommand
+from command_abs import CommandSelection, Command, ExitCommand, BackCommand
 from datasets.dataset import Dataset
 from datasets.datasets_manager import DatasetsManager
 from prism import Prism
@@ -51,7 +51,6 @@ class CliUi(UserInterface):
         command_selection = self.__init_rules_analysis_com_sel(prism, dataset)
         command = self.__select_command(self.RULES_ANALYSIS_TITLE, command_selection)
         while command.run():
-            self.__horizontal_line()
             command = self.__select_command(self.RULES_ANALYSIS_TITLE, command_selection)
 
     def fit_rules(self):
@@ -72,7 +71,7 @@ class CliUi(UserInterface):
         cs.add_command(ShowRulesCliCom(prism.rules))
         cs.add_command(EvaluateModelCliCom(prism, dataset.X_test, dataset.y_test))
         cs.add_command(EvaluateRulesCliCom(prism, dataset.X_train, dataset.y_train))
-        cs.add_command(ExitCommand())
+        cs.add_command(BackCommand())
         return cs
 
     def __select_command(self, header: str, command_sel: CommandSelection) -> Command:
