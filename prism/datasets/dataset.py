@@ -10,7 +10,7 @@ from rules.rule import Rule
 
 
 class Dataset:
-    def __init__(self, dirname: str, y_name: str, name: str, train: pd.DataFrame, test: pd.DataFrame, binning_info=None, binning_max=None):
+    def __init__(self, dirname: str, y_name: str, name: str, train: pd.DataFrame, test: pd.DataFrame, binning_info=None):
         self.dirname = dirname
         self.y_name = y_name
         self.name = name
@@ -59,7 +59,7 @@ class Dataset:
         return rules
 
     @classmethod
-    def create_from_file(cls, source_filename: str, y_name: str, name: str, top_dir: str):
+    def create_from_file(cls, source_filename: str, y_name: str, name: str, top_dir: str, rules_file: str = None):
         if not os.path.isfile(source_filename):
             raise ValueError(f"The file {source_filename} doesn't exist!")
 
@@ -73,9 +73,31 @@ class Dataset:
             os.rmdir(dirname)
             raise ValueError(f"Target variable {y_name} not found in the dataset.")
 
+        if rules_file is not None:
+            if not os.path.isfile(rules_file):
+                os.rmdir(dirname)
+                raise ValueError(f"Rules file {rules_file} doesn't exist!")
+            try:
+                rules = []
+                with open(rules_file) as f:
+                    lines = json.loads(f.readline())["rules"]
+                    for line in lines:
+                        rules.append(Rule(line["cl"], line["operands"]))
+            except Exception as e:
+                os.rmdir(dirname)
+                raise ValueError(f"Rules file isn't valid, error:\n{e}")
+            attributes = set([att for r in rules for att in list(r.operands.keys())])
+            wrong_att = [att for att in attributes if att not in df.columns]
+            if len(wrong_att) > 0:
+                os.rmdir(dirname)
+                raise ValueError(f"Rules contain attributes that aren't present in the dataset!\n"
+                                 f"Invalid attributes: {', '.join(wrong_att)}")
+            shutil.copyfile(rules_file, f"{dirname}/rules.json")
+
         prep = DataPreprocessor(df, y_name)
         prep.apply_binning()
         train, test = prep.get_train_test()
+
         train.to_csv(f"{dirname}/train.csv", index=False)
         test.to_csv(f"{dirname}/test.csv", index=False)
 

@@ -58,7 +58,6 @@ class SimpleGui(UserInterface):
                                sg.ProgressBar(100, orientation='h', size=(10, 10), visible=False, key="-PROG-", bar_color=("#6A759B", "#BDC7F1"))],
                               [self.button("Back", key="-BACK-")]])
 
-        # TODO: sorting
         while True:
             event, values = self.window.read()
             if event == sg.WIN_CLOSED or event == '-BACK-':
@@ -174,7 +173,8 @@ class SimpleGui(UserInterface):
 
     def upload_dataset(self, top_dir) -> Optional[Dataset]:
         self.__switch_layout([[self.text("Upload new dataset")],
-                              [self.text("Choose a csv file:"), self.input(key="-IN-"), self.browse("Browse", target='-IN-')],
+                              [self.text("Dataset file [csv]:"), self.input(key="-DATA-"), self.browse("Browse")],
+                              [self.text("Rules file [json] (optional): "), self.input(key="-RULES-"), self.browse("Browse")],
                               [self.text("Name of your dataset: "), self.input(key="-NAME-")],
                               [self.text("Name of the target variable: "), self.input(key="-TARGET-")],
                               [self.button("Upload", key='-UPLOAD-'), self.button("Cancel", key="-CANCEL-")]])
@@ -185,7 +185,12 @@ class SimpleGui(UserInterface):
                 return
             if event == '-UPLOAD-':
                 try:
-                    dataset = Dataset.create_from_file(values['-IN-'], values['-TARGET-'], values['-NAME-'], top_dir)
+                    if len(values["-RULES-"]) > 0:
+                        dataset = Dataset.create_from_file(values['-DATA-'], values['-TARGET-'], values['-NAME-'],
+                                                           top_dir, values['-RULES-'])
+                    else:
+                        dataset = Dataset.create_from_file(values['-DATA-'], values['-TARGET-'], values['-NAME-'],
+                                                           top_dir)
                     return dataset
                 except ValueError as e:
                     layout = [[sg.Text(e.args[0])], [sg.Button("OK")]]
