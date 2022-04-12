@@ -147,13 +147,17 @@ class SimpleGui(UserInterface):
         return sg.Window("Prism - Hints", layout=layout, margins=(100, 50), finalize=True)
 
     def create_binning_info_window(self, info: Dict):
-        num_cat = max(len(i) for att, i in info.items())
-        layout = [[self.h2("Binning information")],
-                  [self.text("Attributes with too many values were binned,\n"
-                             "here you can see a mapping between the original values and the numerical categories")],
-                  [sg.Table(headings=["Attribute"] + [f"Category {c}" for c in range(num_cat)],
-                            enable_click_events=True, values=[[att] + list(i.values()) for att, i in info.items()],
-                            key="-BIN-TABLE-", font=(self.FONT, self.TEXT_SIZE), justification='center')]]
+        if len(info) == 0:
+            layout = [[self.h2("Binning information")],
+                      [self.text("No binning was necessary")]]
+        else:
+            num_cat = max(len(i) for att, i in info.items())
+            layout = [[self.h2("Binning information")],
+                      [self.text("Attributes with too many values were binned,\n"
+                                 "here you can see a mapping between the original values and the numerical categories")],
+                      [sg.Table(headings=["Attribute"] + [f"Category {c}" for c in range(num_cat)],
+                                enable_click_events=True, values=[[att] + list(i.values()) for att, i in info.items()],
+                                key="-BIN-TABLE-", font=(self.FONT, self.TEXT_SIZE), justification='center')]]
         return sg.Window("Prism - Binning information", layout=layout, margins=(100, 50), finalize=True)
 
     def fit_rules(self):

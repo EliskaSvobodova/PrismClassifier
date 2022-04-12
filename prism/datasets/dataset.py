@@ -68,7 +68,12 @@ class Dataset:
             raise ValueError(f"Dataset directory {dirname}/ already exists! Please, select different dataset name.")
         os.mkdir(dirname)
 
-        prep = DataPreprocessor(source_filename, y_name)
+        df = pd.read_csv(source_filename)
+        if y_name not in df.columns:
+            os.rmdir(dirname)
+            raise ValueError(f"Target variable {y_name} not found in the dataset.")
+
+        prep = DataPreprocessor(df, y_name)
         prep.apply_binning()
         train, test = prep.get_train_test()
         train.to_csv(f"{dirname}/train.csv", index=False)

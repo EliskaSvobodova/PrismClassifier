@@ -6,9 +6,8 @@ from sklearn.model_selection import train_test_split
 
 
 class DataPreprocessor:
-    def __init__(self, filename: str, y_name: str):
+    def __init__(self, df: pd.DataFrame, y_name: str):
         self.y_name = y_name
-        df = pd.read_csv(filename)
         self.train, self.test = train_test_split(df)
         self.binning_info = None
 
