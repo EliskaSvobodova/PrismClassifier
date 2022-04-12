@@ -173,7 +173,7 @@ class SimpleGui(UserInterface):
 
     def upload_dataset(self, top_dir) -> Optional[Dataset]:
         self.__switch_layout([[self.text("Upload new dataset")],
-                              [self.text("Dataset file [csv]:"), self.input(key="-DATA-"), self.browse("Browse")],
+                              [self.text("Dataset file [csv]: "), self.input(key="-DATA-"), self.browse("Browse")],
                               [self.text("Rules file [json] (optional): "), self.input(key="-RULES-"), self.browse("Browse")],
                               [self.text("Name of your dataset: "), self.input(key="-NAME-")],
                               [self.text("Name of the target variable: "), self.input(key="-TARGET-")],

@@ -2,7 +2,7 @@ from typing import Optional
 
 from prettytable import PrettyTable
 
-from command_abs import CommandSelection, Command, ExitCommand, BackCommand
+from command_abs import CommandSelection, Command, BackCommand
 from datasets.dataset import Dataset
 from datasets.datasets_manager import DatasetsManager
 from prism import Prism
@@ -40,10 +40,10 @@ class CliUi(UserInterface):
     def should_load_rules(self) -> bool:
         answer = input(self.SHOULD_LOAD_DATASET + "\n[yes/no] : ")
         answer = answer.lower()
-        while answer not in ["yes", "no"]:
+        while answer not in ["yes", "no", "y", "n"]:
             answer = input(self.SHOULD_LOAD_DATASET + " Please, type \"yes\" or \"no\": ")
             answer = answer.lower()
-        if answer == "yes":
+        if answer == "yes" or "y":
             return True
         return False
 
@@ -62,9 +62,27 @@ class CliUi(UserInterface):
     def update_class(self, class_name: str, class_num: int, num_classes: int, total_num_it: int):
         self.fit_progress_bar = ProgressBar(total_num_it, f"Class: {class_name} ({class_num}/{num_classes})")
 
-    def upload_dataset(self, top_dir: str) -> Dataset:
-        # TODO: do this
-        pass
+    def upload_dataset(self, top_dir: str) -> Optional[Dataset]:
+        print("Upload new dataset:")
+        while True:
+            dataset_file = input("Dataset file [csv]: ")
+            rules_file = input("Rules file [json] (optional - can leave blank): ")
+            dataset_name = input("Name of your dataset: ")
+            y_name = input("Name of the target variable: ")
+            try:
+                if len(rules_file) > 0:
+                    dataset = Dataset.create_from_file(dataset_file, y_name, dataset_name,
+                                                       top_dir, rules_file)
+                else:
+                    dataset = Dataset.create_from_file(dataset_file, y_name, dataset_name,
+                                                       top_dir)
+                return dataset
+            except ValueError as e:
+                print("Error while uploading dataset")
+                print(e)
+                again = input("Try again? [yes/no] : ").lower()
+                if again != "yes" and again != "y":
+                    return
 
     def __init_rules_analysis_com_sel(self, prism, dataset):
         cs = CommandSelection()
