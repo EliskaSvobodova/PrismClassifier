@@ -63,7 +63,7 @@ class SimpleGui(UserInterface):
             if event == sg.WIN_CLOSED or event == '-BACK-':
                 return
             if isinstance(event, tuple) and event[0] == "-TABLE-" and event[2][0] != -1:
-                return manager.datasets[event[2][0]]
+                return manager.datasets[datasets[event[2][0]][0] - 1]
             if isinstance(event, tuple) and event[0] == "-TABLE-" and event[2][0] == -1:
                 datasets = sorted(datasets, key=lambda d: d[event[2][1]])
                 self.window['-TABLE-'].update(datasets)

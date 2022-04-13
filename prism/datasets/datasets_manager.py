@@ -11,7 +11,7 @@ class DatasetsManager:
         if not os.path.isdir(self.top_dir):
             os.mkdir(self.top_dir)
         else:
-            for subdir in os.listdir(self.top_dir):
+            for subdir in sorted(os.listdir(self.top_dir)):
                 self.datasets.append(Dataset.load_from_storage(f"{self.top_dir}/{subdir}"))
 
     def add_dataset(self, dataset: Dataset):
