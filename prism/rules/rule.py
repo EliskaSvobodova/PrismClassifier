@@ -54,6 +54,8 @@ class Rule:
 
     def query(self):
         def equal(att, val):
+            if pd.isna(val):
+                return f"{att}.isnull()"
             if type(val) is str:
                 return f"`{att}` == '{val}'"
             else:

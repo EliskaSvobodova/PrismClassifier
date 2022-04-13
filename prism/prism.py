@@ -57,20 +57,20 @@ class Prism(FitProgressPublisher):
         X_y = X.copy()
         X_y['y'] = y
         rules = []
-        classes = y.unique()
+        classes = y.unique()  # all unique values of the target variable
 
         for i, cl in enumerate(classes):
-            cl_inst = X_y[y == cl]
+            cl_inst = X_y[y == cl]  # data points with the current class
             inst = X_y
             self.notify_new_class(cl, i+1, len(classes), len(cl_inst))
             total_cl_inst = len(cl_inst)
-            while len(cl_inst) > 0:
-                rule = Rule(cl)
-                while len(rule.available_attributes(X_y)) > 0 and not rule.is_perfect(X_y):
-                    rule.add_operand(inst)
+            while len(cl_inst) > 0:  # while there are instances of the current class that aren't covered by any rule
+                rule = Rule(cl)  # create new empty rule
+                while len(rule.available_attributes(X_y)) > 0 and not rule.is_perfect(X_y):  # while there are attributes that are not yet used in the rule and the rule incorrectly classifies any of the training data
+                    rule.add_operand(inst)  # add operand to the rule that has the highest precision (number of class matches)
                 logging.info(f"Final rule: {rule}\n")
-                cl_inst = rule.not_matched_inst(cl_inst)
-                inst = rule.not_matched_inst(inst)
+                cl_inst = rule.not_matched_inst(cl_inst)  # remove instances of the current class that are covered by the new rule
+                inst = rule.not_matched_inst(inst)  # remove instances that are covered by the new rule
                 rules.append(rule)
                 self.notify_progress(total_cl_inst - len(cl_inst))
                 logging.warning(f"Class: {cl} ({i+1}/{len(classes)}), {len(cl_inst)} remaining")
