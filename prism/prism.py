@@ -97,7 +97,9 @@ class Prism(FitProgressPublisher):
         y_obt = self.classify(X_test)
         diff = y_test.compare(y_obt)
         num_correct = len(X_test) - len(diff)
-        return DatasetEval(num_correct / len(X_test), num_correct / y_obt.count())
+        return DatasetEval(num_correct / len(X_test),
+                           num_correct / y_obt.count(),
+                           y_obt.count() / len(X_test))
 
     def evaluate_rules(self, X_train: pd.DataFrame, y_train: pd.Series) -> List[RuleEval]:
         y_val_counts = y_train.value_counts()

@@ -2,6 +2,7 @@ import sys
 from typing import List, Optional, Dict
 
 import PySimpleGUI as sg
+import pandas as pd
 
 from command_abs import CommandSelection, Command
 from datasets.dataset import Dataset
@@ -82,7 +83,7 @@ class SimpleGui(UserInterface):
 
     def analyse_dataset(self, prism: Prism, dataset: Dataset):
         self.__switch_layout([[self.h2(self.RULES_ANALYSIS_TITLE)],
-                              [self.text("Accuracy: [calculating]", key='-ACCURACY-'),
+                              [self.text("Accuracy: [calculating]    Coverage: [calculating]", key='-ACCURACY-'),
                                self.button("Binning explanation", key='-BINNING-'),
                                self.button("Usage hints", key='-SHOW-HINTS-')],
                               [sg.Table(headings=["Coverage", "Precision", "Rule"], enable_click_events=True,
@@ -118,10 +119,11 @@ class SimpleGui(UserInterface):
                     return
             if event == '-EVAL-MODEL-DONE-':
                 d_eval = values[event]
-                self.window['-ACCURACY-'].update(f"Accuracy all: {d_eval.accuracy_all:.4f}    Accuracy classified: {d_eval.accuracy_classified:.4f}")
+                self.window['-ACCURACY-'].update(f"Accuracy all: {d_eval.accuracy_all:.4f}    Accuracy classified: {d_eval.accuracy_classified:.4f}    Coverage: {d_eval.coverage:.4f}")
             if event == '-EVAL-RULES-DONE-':
                 rules_eval = values[event]
                 self.window['-TABLE-'].update(self.__rules_eval_list(rules_eval))
+                self.__save_rules_eval(rules_eval, dataset)
             if isinstance(event, tuple) and event[0] == "-TABLE-" and event[2][0] == -1 and rules_eval is not None:
                 if event[2][1] == 0:
                     rules_eval = sorted(rules_eval, key=lambda r: (r.coverage, r.precision), reverse=True)
@@ -208,6 +210,11 @@ class SimpleGui(UserInterface):
 
     def __rules_eval_list(self, rules_eval: List[RuleEval]) -> List[List[str]]:
         return [[f"{r.coverage:3.2f}", f"{r.precision:3.2f}", r.rule] for r in rules_eval]
+
+    def __save_rules_eval(self, rules_eval: List[RuleEval], dataset: Dataset):
+        df = pd.DataFrame([[r.coverage, r.precision, r.rule.cl, ' ∧ '.join([f"{att} = {val}" for att, val in r.rule.operands.items()])] for r in rules_eval],
+                          columns=['Coverage', 'Precision', 'Class', 'Operands'])
+        df.to_csv(dataset.rules_eval_filename, index=False)
 
     def button(self, text, **kwargs):
         return sg.Button(text, **kwargs, font=(self.FONT, self.TEXT_SIZE))

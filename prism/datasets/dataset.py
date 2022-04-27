@@ -31,6 +31,10 @@ class Dataset:
             return False
 
     @property
+    def rules_eval_filename(self):
+        return f"{self.dirname}/rules_eval.csv"
+
+    @property
     def X_train(self):
         return self.train.drop(self.y_name, axis=1)
 
